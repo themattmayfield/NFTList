@@ -10,7 +10,7 @@ import {
 import { SearchIcon, SelectorIcon } from "@heroicons/react/solid";
 import MetaMaskLogo from "public/MetaMaskLogo.png";
 import Image from "next/image";
-import { Logo, GeneralTextClass } from "./PageUtils";
+import { Logo } from "./PageUtils";
 
 const navigation = [
   { name: "Home", href: "#", icon: HomeIcon, current: true },
@@ -21,6 +21,21 @@ const teams = [
   { name: "Engineering", href: "#", bgColorClass: "bg-indigo-500" },
   { name: "Human Resources", href: "#", bgColorClass: "bg-green-500" },
   { name: "Customer Success", href: "#", bgColorClass: "bg-yellow-500" },
+];
+
+const menuItems = [
+  {
+    label: "Profile",
+  },
+  {
+    label: "Settings",
+  },
+  {
+    label: "Notifications",
+  },
+  {
+    label: "Support",
+  },
 ];
 
 function classNames(...classes) {
@@ -152,71 +167,40 @@ const NavGuts = ({ user, desktop, logout }) => (
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+          <Menu.Items className="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white dark:bg-black ring-1 ring-black dark:ring-nftGray ring-opacity-5 divide-y divide-gray-200 dark:divide-nftGray focus:outline-none">
             <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+              {[
+                ...menuItems.map((item, itemIndex) => (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <a
+                        key={itemIndex}
+                        href="#"
+                        className={classNames(
+                          active
+                            ? "bg-gray-100 dark:bg-nftGray text-gray-900"
+                            : "text-gray-700 ",
+                          "block px-4 py-2 text-sm dark:text-white"
+                        )}
+                      >
+                        {item?.label}
+                      </a>
                     )}
-                  >
-                    View profile
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Settings
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Notifications
-                  </a>
-                )}
-              </Menu.Item>
+                  </Menu.Item>
+                )),
+              ]}
             </div>
-            <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Support
-                  </a>
-                )}
-              </Menu.Item>
-            </div>
+
             <div className="py-1">
               <Menu.Item>
                 {({ active }) => (
                   <a
                     onClick={logout}
                     className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+                      active
+                        ? "bg-gray-100 dark:bg-nftGray text-gray-900"
+                        : "text-gray-700",
+                      "block px-4 py-2 text-sm dark:text-white"
                     )}
                   >
                     Logout

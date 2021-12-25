@@ -226,16 +226,6 @@ const ProjectTable = () => (
               </td>
               <td className="px-6 py-3 text-sm text-gray-500 font-medium">
                 <div className="flex items-center space-x-2">
-                  <div className="flex flex-shrink-0 -space-x-1">
-                    {project.members.map((member) => (
-                      <img
-                        key={member.handle}
-                        className="max-w-none h-6 w-6 rounded-full ring-2 ring-white"
-                        src={member.imageUrl}
-                        alt={member.name}
-                      />
-                    ))}
-                  </div>
                   {project.totalMembers > project.members.length ? (
                     <span className="flex-shrink-0 text-xs leading-5 font-medium">
                       +{project.totalMembers - project.members.length}
