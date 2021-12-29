@@ -1,10 +1,9 @@
 import { useMoralis } from "react-moralis";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { projects } from "components/DUMMY_DATA";
 import { ChevronRightIcon, DotsVerticalIcon } from "@heroicons/react/solid";
 import Layout from "components/Layout";
-
 import Header from "components/Header";
 
 const pinnedProjects = projects.filter((project) => project.pinned);
@@ -19,7 +18,7 @@ export default function Dashboard() {
   return (
     <>
       <Layout>
-        <Header />
+        <Header title="Dashboard" create />
         <RecentProjects />
 
         {/* Projects list (only on smallest breakpoint) */}
@@ -78,7 +77,7 @@ const RecentProjects = () => (
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+                <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white dark:bg-black dark:border dark:border-nftGray ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 dark:divide-nftGray focus:outline-none">
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
@@ -86,8 +85,8 @@ const RecentProjects = () => (
                           href="#"
                           className={classNames(
                             active
-                              ? "bg-gray-100 text-gray-900"
-                              : "text-gray-700",
+                              ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
+                              : "text-gray-700 dark:text-white",
                             "block px-4 py-2 text-sm"
                           )}
                         >
@@ -103,8 +102,8 @@ const RecentProjects = () => (
                           href="#"
                           className={classNames(
                             active
-                              ? "bg-gray-100 text-gray-900"
-                              : "text-gray-700",
+                              ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
+                              : "text-gray-700 dark:text-white",
                             "block px-4 py-2 text-sm"
                           )}
                         >
@@ -118,8 +117,8 @@ const RecentProjects = () => (
                           href="#"
                           className={classNames(
                             active
-                              ? "bg-gray-100 text-gray-900"
-                              : "text-gray-700",
+                              ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
+                              : "text-gray-700 dark:text-white",
                             "block px-4 py-2 text-sm"
                           )}
                         >
