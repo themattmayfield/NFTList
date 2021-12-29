@@ -4,7 +4,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { projects } from "components/DUMMY_DATA";
 import { ChevronRightIcon, DotsVerticalIcon } from "@heroicons/react/solid";
 import Layout from "components/Layout";
-import Header from "components/Header";
+import Link from "next/link";
 
 const pinnedProjects = projects.filter((project) => project.pinned);
 
@@ -17,8 +17,7 @@ export default function Dashboard() {
   console.log(user);
   return (
     <>
-      <Layout>
-        <Header title="Dashboard" create />
+      <Layout pageTitle="Dashboard" rightSlot={<RightSlot />}>
         <RecentProjects />
 
         {/* Projects list (only on smallest breakpoint) */}
@@ -246,4 +245,15 @@ const ProjectTable = () => (
       </table>
     </div>
   </div>
+);
+
+const RightSlot = () => (
+  <Link href="/create">
+    <button
+      type="button"
+      className="order-0 inline-flex items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:order-1 sm:ml-3"
+    >
+      Create
+    </button>
+  </Link>
 );

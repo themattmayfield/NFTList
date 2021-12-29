@@ -2,7 +2,6 @@ import { useMoralis } from "react-moralis";
 import { Fragment, useState } from "react";
 import { Switch } from "@headlessui/react";
 import Layout from "components/Layout";
-import Header from "components/Header";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -18,8 +17,7 @@ const Create = () => {
 
   return (
     <>
-      <Layout>
-        <Header title="Create" />
+      <Layout pageTitle={"Create"}>
         <div className="space-y-6 max-w-5xl lg:px-2 mx-auto lg:pt-6">
           <Panel>
             <TitleDescription
