@@ -1,36 +1,72 @@
 import { useMoralis } from "react-moralis";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { projects } from "components/DUMMY_DATA";
+// import { projects } from "components/DUMMY_DATA";
 import { ChevronRightIcon, DotsVerticalIcon } from "@heroicons/react/solid";
 import Layout from "components/Layout";
 import Link from "next/link";
-
-const pinnedProjects = projects.filter((project) => project.pinned);
+import getInitials from "lib/getInitials";
+import EmptyProjects from "./EmptyProjects";
+import pluralize from "pluralize";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Dashboard() {
-  const { user } = useMoralis();
-  console.log(user);
+  const { user, Moralis } = useMoralis();
+
+  const [projects, setProjects] = useState([]);
+
+  useEffect(async () => {
+    try {
+      const Projects = Moralis.Object.extend("Projects");
+      const query = new Moralis.Query(Projects);
+      query.equalTo("user", user.id);
+      const results = await query.find();
+      const formattedResults = results.map((item) => ({
+        id: item.id,
+        ...item.attributes,
+      }));
+
+      setProjects(formattedResults);
+    } catch (error) {
+      //TODO
+      //TOast
+      console.log(error);
+    }
+  }, [user]);
+
+  const pinnedProjects = projects;
+  // const pinnedProjects = projects.filter((project) => project.pinned);
+
   return (
     <>
       <Layout pageTitle="Dashboard" rightSlot={<RightSlot />}>
-        <RecentProjects />
+        {!projects.length ? (
+          <div className="pt-12">
+            <EmptyProjects />
+          </div>
+        ) : (
+          <>
+            <RecentProjects
+              projects={projects}
+              pinnedProjects={pinnedProjects}
+            />
 
-        {/* Projects list (only on smallest breakpoint) */}
-        <ProjectList />
+            {/* Projects list (only on smallest breakpoint) */}
+            <ProjectList projects={projects} />
 
-        {/* Projects table (small breakpoint and up) */}
-        <ProjectTable />
+            {/* Projects table (small breakpoint and up) */}
+            <ProjectTable projects={projects} />
+          </>
+        )}
       </Layout>
     </>
   );
 }
 
-const RecentProjects = () => (
+const RecentProjects = ({ pinnedProjects }) => (
   <div className="px-4 mt-6 sm:px-6 lg:px-8">
     <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
       Pinned Projects
@@ -45,12 +81,12 @@ const RecentProjects = () => (
           className="relative col-span-1 flex shadow-sm rounded-md"
         >
           <div
+            style={{ backgroundColor: project.backgroundColor }}
             className={classNames(
-              project.bgColorClass,
               "flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md"
             )}
           >
-            {project.initials}
+            {getInitials(project.projectName)}
           </div>
           <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 dark:border-nftGray bg-white dark:bg-black rounded-r-md truncate">
             <div className="flex-1 px-4 py-2 text-sm truncate">
@@ -58,9 +94,11 @@ const RecentProjects = () => (
                 href="#"
                 className="text-gray-900 dark:text-white font-medium hover:text-gray-600"
               >
-                {project.title}
+                {project.projectName}
               </a>
-              <p className="text-gray-500">{project.totalMembers} Members</p>
+              <p className="text-gray-500">
+                {pluralize("Member", project.members.length, true)}
+              </p>
             </div>
             <Menu as="div" className="flex-shrink-0 pr-2">
               <Menu.Button className="w-8 h-8 inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none">
@@ -136,7 +174,7 @@ const RecentProjects = () => (
   </div>
 );
 
-const ProjectList = () => (
+const ProjectList = ({ projects }) => (
   <div className="mt-10 sm:hidden">
     <div className="px-4 sm:px-6">
       <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
@@ -155,17 +193,12 @@ const ProjectList = () => (
           >
             <span className="flex items-center truncate space-x-3">
               <span
-                className={classNames(
-                  project.bgColorClass,
-                  "w-2.5 h-2.5 flex-shrink-0 rounded-full"
-                )}
+                style={{ backgroundColor: project.backgroundColor }}
+                className={classNames("w-2.5 h-2.5 flex-shrink-0 rounded-full")}
                 aria-hidden="true"
               />
               <span className="font-medium truncate text-sm leading-6">
-                {project.title}{" "}
-                <span className="truncate font-normal text-gray-500">
-                  in {project.team}
-                </span>
+                {project.projectName}
               </span>
             </span>
             <ChevronRightIcon
@@ -179,7 +212,7 @@ const ProjectList = () => (
   </div>
 );
 
-const ProjectTable = () => (
+const ProjectTable = ({ projects }) => (
   <div className="hidden mt-8 sm:block">
     <div className="align-middle inline-block min-w-full border-b border-gray-200 dark:border-nftGray">
       <table className="min-w-full">
@@ -213,22 +246,15 @@ const ProjectTable = () => (
                     href="#"
                     className="truncate hover:text-gray-600 dark:text-white"
                   >
-                    <span>
-                      {project.title}{" "}
-                      <span className="text-gray-500 font-normal">
-                        in {project.team}
-                      </span>
-                    </span>
+                    <span>{project.projectName}</span>
                   </a>
                 </div>
               </td>
               <td className="px-6 py-3 text-sm text-gray-500 font-medium">
                 <div className="flex items-center space-x-2">
-                  {project.totalMembers > project.members.length ? (
-                    <span className="flex-shrink-0 text-xs leading-5 font-medium">
-                      +{project.totalMembers - project.members.length}
-                    </span>
-                  ) : null}
+                  <span className="flex-shrink-0 text-xs leading-5 font-medium">
+                    +{project.members.length}
+                  </span>
                 </div>
               </td>
               <td className="hidden md:table-cell px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">

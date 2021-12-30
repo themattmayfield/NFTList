@@ -8,7 +8,7 @@ const Header = ({ setSidebarOpen, pageTitle, rightSlot }) => {
     <div className="sticky top-0 z-10 flex-shrink-0 flex items-center h-16 bg-white dark:bg-black border-b border-gray-200 dark:border-nftGray">
       <button
         type="button"
-        className="px-4 border-r border-gray-200 dark:border-nftGray text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 lg:hidden"
+        className="px-4 border-r border-gray-200 dark:border-nftGray text-gray-500 focus:outline-none lg:hidden"
         onClick={() => setSidebarOpen(true)}
       >
         <span className="sr-only">Open sidebar</span>
