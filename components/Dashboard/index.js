@@ -8,17 +8,24 @@ import Link from "next/link";
 import getInitials from "lib/getInitials";
 import EmptyProjects from "./EmptyProjects";
 import pluralize from "pluralize";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import { classNames } from "components/PageUtils";
+import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
+import _ from "lodash";
+import { useRouter } from "next/router";
 
 export default function Dashboard() {
   const { user, Moralis } = useMoralis();
+  const router = useRouter();
 
   const [projects, setProjects] = useState([]);
 
-  useEffect(async () => {
+  useEffect(() => {
+    user && fetchProjects();
+  }, [user]);
+
+  const pinnedProjects = projects.filter((project) => project.pinned);
+
+  const fetchProjects = async () => {
     try {
       const Projects = Moralis.Object.extend("Projects");
       const query = new Moralis.Query(Projects);
@@ -35,10 +42,35 @@ export default function Dashboard() {
       //TOast
       console.log(error);
     }
-  }, [user]);
+  };
 
-  const pinnedProjects = projects;
-  // const pinnedProjects = projects.filter((project) => project.pinned);
+  const handlePin = async (type, id) => {
+    try {
+      console.log(id);
+      const Projects = Moralis.Object.extend("Projects");
+      const query = new Moralis.Query(Projects);
+      query.equalTo("user", user.id);
+      query.equalTo("objectId", id);
+      const results = await query.first();
+
+      const updatedProject = await results.save({
+        pinned: type === "pin" ? true : false,
+      });
+      const { updatedAt } = updatedProject.attributes;
+      console.log(updatedAt);
+      setProjects(
+        projects.map((item) =>
+          item.id === id
+            ? { ...item, pinned: !item.pinned, updatedAt: updatedAt }
+            : item
+        )
+      );
+    } catch (error) {
+      // TODO
+      // Toast with error message.
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -50,15 +82,25 @@ export default function Dashboard() {
         ) : (
           <>
             <RecentProjects
+              router={router}
               projects={projects}
               pinnedProjects={pinnedProjects}
+              handlePin={handlePin}
             />
 
             {/* Projects list (only on smallest breakpoint) */}
-            <ProjectList projects={projects} />
+            <ProjectList
+              projects={projects}
+              router={router}
+              handlePin={handlePin}
+            />
 
             {/* Projects table (small breakpoint and up) */}
-            <ProjectTable projects={projects} />
+            <ProjectTable
+              projects={projects}
+              router={router}
+              handlePin={handlePin}
+            />
           </>
         )}
       </Layout>
@@ -66,7 +108,7 @@ export default function Dashboard() {
   );
 }
 
-const RecentProjects = ({ pinnedProjects }) => (
+const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
   <div className="px-4 mt-6 sm:px-6 lg:px-8">
     <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
       Pinned Projects
@@ -75,7 +117,7 @@ const RecentProjects = ({ pinnedProjects }) => (
       role="list"
       className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3"
     >
-      {pinnedProjects.map((project) => (
+      {_.orderBy(pinnedProjects, ["updatedAt"], ["desc"]).map((project) => (
         <li
           key={project.id}
           className="relative col-span-1 flex shadow-sm rounded-md"
@@ -137,6 +179,7 @@ const RecentProjects = ({ pinnedProjects }) => (
                       {({ active }) => (
                         <a
                           href="#"
+                          onClick={() => handlePin("unpin", project.id)}
                           className={classNames(
                             active
                               ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
@@ -144,7 +187,7 @@ const RecentProjects = ({ pinnedProjects }) => (
                             "block px-4 py-2 text-sm"
                           )}
                         >
-                          Removed from pinned
+                          Remove from pinned
                         </a>
                       )}
                     </Menu.Item>
@@ -174,7 +217,7 @@ const RecentProjects = ({ pinnedProjects }) => (
   </div>
 );
 
-const ProjectList = ({ projects }) => (
+const ProjectList = ({ projects, handlePin, router }) => (
   <div className="mt-10 sm:hidden">
     <div className="px-4 sm:px-6">
       <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
@@ -183,36 +226,49 @@ const ProjectList = ({ projects }) => (
     </div>
     <ul
       role="list"
-      className="mt-3 border-t border-gray-200 divide-y divide-gray-100"
+      className="mt-3 border-t border-gray-200 dark:border-nftGray divide-y divide-gray-100 dark:divide-nftGray"
     >
-      {projects.map((project) => (
-        <li key={project.id}>
-          <a
-            href="#"
-            className="group flex items-center justify-between px-4 py-4 hover:bg-gray-50 sm:px-6"
+      {_.orderBy(projects, ["pinned", "updatedAt"], ["desc", "desc"]).map(
+        (project) => (
+          <li
+            onClick={() => router.push(`projectDetails/${project.id}`)}
+            key={project.id}
           >
-            <span className="flex items-center truncate space-x-3">
-              <span
-                style={{ backgroundColor: project.backgroundColor }}
-                className={classNames("w-2.5 h-2.5 flex-shrink-0 rounded-full")}
+            <a
+              href="#"
+              className="group flex items-center justify-between px-4 py-4 hover:bg-gray-50 dark:hover:bg-nftGray sm:px-6"
+            >
+              <span className="flex items-center truncate space-x-3">
+                <span aria-hidden="true">
+                  {project.pinned ? (
+                    <BsPinAngleFill
+                      onClick={() => handlePin("unpin", project.id)}
+                      className="text-black dark:text-white cursor-pointer"
+                    />
+                  ) : (
+                    <BsPinAngle
+                      onClick={() => handlePin("pin", project.id)}
+                      className="text-black dark:text-white cursor-pointer"
+                    />
+                  )}
+                </span>
+                <span className="font-medium truncate text-sm leading-6">
+                  {project.projectName}
+                </span>
+              </span>
+              <ChevronRightIcon
+                className="ml-4 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                 aria-hidden="true"
               />
-              <span className="font-medium truncate text-sm leading-6">
-                {project.projectName}
-              </span>
-            </span>
-            <ChevronRightIcon
-              className="ml-4 h-5 w-5 text-gray-400 group-hover:text-gray-500"
-              aria-hidden="true"
-            />
-          </a>
-        </li>
-      ))}
+            </a>
+          </li>
+        )
+      )}
     </ul>
   </div>
 );
 
-const ProjectTable = ({ projects }) => (
+const ProjectTable = ({ projects, handlePin, router }) => (
   <div className="hidden mt-8 sm:block">
     <div className="align-middle inline-block min-w-full border-b border-gray-200 dark:border-nftGray">
       <table className="min-w-full">
@@ -231,42 +287,48 @@ const ProjectTable = ({ projects }) => (
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-black divide-y divide-gray-100 dark:divide-nftGray">
-          {projects.map((project) => (
-            <tr key={project.id}>
-              <td className="px-6 py-3 max-w-0 w-full whitespace-nowrap text-sm font-medium text-gray-900">
-                <div className="flex items-center space-x-3 lg:pl-2">
-                  <div
-                    className={classNames(
-                      project.bgColorClass,
-                      "flex-shrink-0 w-2.5 h-2.5 rounded-full"
+          {_.orderBy(projects, ["pinned", "updatedAt"], ["desc", "desc"]).map(
+            (project) => (
+              <tr key={project.id}>
+                <td className="px-6 py-3 max-w-0 w-full whitespace-nowrap text-sm font-medium text-gray-900">
+                  <div className="flex items-center space-x-3">
+                    {project.pinned ? (
+                      <BsPinAngleFill
+                        onClick={() => handlePin("unpin", project.id)}
+                        className="text-black dark:text-white text-base cursor-pointer"
+                      />
+                    ) : (
+                      <BsPinAngle
+                        onClick={() => handlePin("pin", project.id)}
+                        className="text-black dark:text-white text-base cursor-pointer"
+                      />
                     )}
-                    aria-hidden="true"
-                  />
-                  <a
-                    href="#"
-                    className="truncate hover:text-gray-600 dark:text-white"
-                  >
-                    <span>{project.projectName}</span>
+                    <a
+                      href="#"
+                      className="truncate hover:text-gray-600 dark:text-white"
+                    >
+                      <span>{project.projectName}</span>
+                    </a>
+                  </div>
+                </td>
+                <td className="px-6 py-3 text-sm text-gray-500 font-medium">
+                  <div className="flex items-center space-x-2">
+                    <span className="flex-shrink-0 text-xs leading-5 font-medium">
+                      +{project.members.length}
+                    </span>
+                  </div>
+                </td>
+                <td className="hidden md:table-cell px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
+                  {project.lastUpdated}
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                  <a href="#" className="text-indigo-600 hover:text-indigo-900">
+                    View
                   </a>
-                </div>
-              </td>
-              <td className="px-6 py-3 text-sm text-gray-500 font-medium">
-                <div className="flex items-center space-x-2">
-                  <span className="flex-shrink-0 text-xs leading-5 font-medium">
-                    +{project.members.length}
-                  </span>
-                </div>
-              </td>
-              <td className="hidden md:table-cell px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
-                {project.lastUpdated}
-              </td>
-              <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
-                <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                  Edit
-                </a>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            )
+          )}
         </tbody>
       </table>
     </div>

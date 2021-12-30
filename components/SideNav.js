@@ -23,15 +23,19 @@ const navigation = [
 const menuItems = [
   {
     label: "Profile",
+    href: "/",
   },
   {
     label: "Settings",
+    href: "/settings",
   },
   {
     label: "Notifications",
+    href: "/",
   },
   {
     label: "Support",
+    href: "/",
   },
 ];
 
@@ -42,8 +46,6 @@ function classNames(...classes) {
 const SideNav = ({ sidebarOpen, setSidebarOpen }) => {
   const { logout, user } = useMoralis();
   const router = useRouter();
-
-  console.log(router);
 
   return (
     <>
@@ -73,7 +75,7 @@ const SideNav = ({ sidebarOpen, setSidebarOpen }) => {
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <div className="relative flex-1 flex flex-col max-w-min w-full pt-5 pb-4 bg-white dark:bg-black">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-gray-100 dark:bg-black">
               <Transition.Child
                 as={Fragment}
                 enter="ease-in-out duration-300"
@@ -115,13 +117,13 @@ const NavGuts = ({ user, desktop, logout, router }) => (
   <div
     className={`${
       desktop ? "hidden lg:flex" : "flex"
-    }  flex-col w-64 fixed inset-y-0 dark:border-nftGray lg:border-r lg:border-gray-200 pt-5 pb-4 bg-gray-100 dark:bg-black`}
+    }  flex-col w-full relative lg:w-64 lg:fixed inset-y-0 dark:border-nftGray lg:border-r lg:border-gray-200 pt-5 pb-4 `}
   >
     <div className="flex items-center flex-shrink-0 px-6">
       <Logo />
     </div>
     {/* Sidebar component, swap this element with another sidebar if you like */}
-    <div className="mt-6 h-0 flex-1 flex flex-col overflow-y-auto">
+    <div className="mt-6 h-0 flex-1 flex flex-col">
       {/* User account dropdown */}
       <Menu as="div" className="px-3 relative inline-block text-left">
         <div>
@@ -171,21 +173,22 @@ const NavGuts = ({ user, desktop, logout, router }) => (
             <div className="py-1">
               {[
                 ...menuItems.map((item, itemIndex) => (
-                  <Menu.Item key={itemIndex}>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active
-                            ? "bg-gray-100 dark:bg-nftGray text-gray-900"
-                            : "text-gray-700 ",
-                          "block px-4 py-2 text-sm dark:text-white"
-                        )}
-                      >
-                        {item?.label}
-                      </a>
-                    )}
-                  </Menu.Item>
+                  <Link href={item.href} key={itemIndex}>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <a
+                          className={classNames(
+                            active
+                              ? "bg-gray-100 dark:bg-nftGray text-gray-900"
+                              : "text-gray-700 ",
+                            "block px-4 py-2 text-sm dark:text-white cursor-pointer"
+                          )}
+                        >
+                          {item?.label}
+                        </a>
+                      )}
+                    </Menu.Item>
+                  </Link>
                 )),
               ]}
             </div>
@@ -221,18 +224,13 @@ const NavGuts = ({ user, desktop, logout, router }) => (
                 className={classNames(
                   item.href === router.asPath
                     ? "bg-gray-200 dark:bg-nftGray text-gray-900 dark:text-white"
-                    : "text-gray-700 hover:text-gray-900 hover:dark:text-white hover:bg-gray-50 hover:dark:bg-nftGray/70",
+                    : "text-gray-700 dark:text-gray-500 hover:text-gray-900 hover:dark:text-white hover:bg-gray-50 hover:dark:bg-nftGray/70",
                   "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
                 )}
                 aria-current={item.href === router.asPath ? "page" : undefined}
               >
                 <item.icon
-                  className={classNames(
-                    item.href === router.asPath
-                      ? "text-gray-500"
-                      : "text-gray-400 group-hover:text-gray-500",
-                    "mr-3 flex-shrink-0 h-6 w-6"
-                  )}
+                  className="mr-3 flex-shrink-0 h-6 w-6"
                   aria-hidden="true"
                 />
                 {item.name}

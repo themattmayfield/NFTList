@@ -1,9 +1,9 @@
 import { Fragment, useState } from "react";
 import { Switch } from "@headlessui/react";
 
-function classNames(...classes) {
+export const classNames = (...classes) => {
   return classes.filter(Boolean).join(" ");
-}
+};
 
 export const Logo = () => (
   <p className="text-3xl font-black text-black dark:text-white">NFTList</p>

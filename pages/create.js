@@ -12,6 +12,7 @@ import {
 } from "components/PageUtils";
 import { ChromePicker } from "react-color";
 import { useRouter } from "next/router";
+import getRandomColor from "lib/getRandomColor";
 
 const Create = () => {
   const { user, Moralis } = useMoralis();
@@ -20,9 +21,10 @@ const Create = () => {
   const [state, setState] = useImmer({
     projectName: "",
     website: "",
+    whitelistLimit: undefined,
     public: false,
     displayName: "",
-    backgroundColor: "#ffffff",
+    backgroundColor: getRandomColor(),
     textColor: "#000000",
   });
 
@@ -114,7 +116,7 @@ const Create = () => {
             <Panel>
               <TitleDescription
                 title="Basic Info"
-                description="This information is what will initialize the project."
+                description="This information will only be seen by you."
               />
 
               <div className="mt-5 md:mt-0 md:col-span-2">
@@ -131,7 +133,7 @@ const Create = () => {
                       />
                     </div>
 
-                    <div className="col-span-3 sm:col-span-2">
+                    <div className="col-span-6 sm:col-span-4">
                       <CustomPrefixInput
                         htmlFor="website"
                         label="Website"
@@ -142,20 +144,22 @@ const Create = () => {
                         onChange={handleInputChange}
                       />
                     </div>
-                  </div>
-                </div>
-              </div>
-            </Panel>
-
-            <Panel>
-              <TitleDescription
-                title="Project Details"
-                description="Use a permanent address where you can receive mail."
-              />
-
-              <div className="mt-5 md:mt-0 md:col-span-2">
-                <div>
-                  <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-4">
+                      <div className="w-1/2">
+                        <CustomInput
+                          htmlFor="whitelistLimit"
+                          label="Whitelist Limit"
+                          type="number"
+                          min="0"
+                          name="whitelistLimit"
+                          id="whitelistLimit"
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">
+                        If you do not know the max, just leave empty.
+                      </p>
+                    </div>
                     <div className="col-span-6 sm:col-span-4">
                       <Label htmlFor="public" label="Public" />
 
@@ -167,111 +171,8 @@ const Create = () => {
                               draft.public = !draft.public;
                             })
                           }
-                          description="Do you want to make your whitelist public?"
+                          description="Do you want to make your whitelist public? This will allow you to create a simple webpage for people to join your whitelist themselves."
                         />
-                      </div>
-                    </div>
-                    <div className="col-span-6 sm:col-span-4">
-                      <CustomInput
-                        htmlFor="display-name"
-                        label="Display Name"
-                        type="text"
-                        name="displayName"
-                        id="displayName"
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className="col-span-6 sm:col-span-3">
-                      <Label
-                        htmlFor="project-backgroundColor"
-                        label="Project Background Color"
-                      />
-
-                      <div className="mt-1">
-                        <ChromePicker
-                          color={state?.backgroundColor}
-                          onChange={handleChangeCompleteBg}
-                          disableAlpha={true}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-6 sm:col-span-4">
-                      <Label
-                        htmlFor="project-textColor"
-                        label="Project Text Color"
-                      />
-
-                      <div className="mt-1">
-                        <ChromePicker
-                          color={state?.textColor}
-                          onChange={handleChangeCompleteTx}
-                          disableAlpha={true}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-6">
-                      <Label htmlFor="default" label="Default Photo" />
-
-                      <div className="mt-1 flex items-center space-x-5">
-                        <span className="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                          <svg
-                            className="h-full w-full text-gray-300"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                          </svg>
-                        </span>
-                        <button
-                          type="button"
-                          className="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                          Change
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="col-span-6">
-                      <Label htmlFor="cover-photo" label="Cover photo" />
-
-                      <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div className="space-y-1 text-center">
-                          <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
-                            stroke="currentColor"
-                            fill="none"
-                            viewBox="0 0 48 48"
-                            aria-hidden="true"
-                          >
-                            <path
-                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                              strokeWidth={2}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <div className="flex text-sm text-gray-600">
-                            <label
-                              htmlFor="file-upload"
-                              className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                            >
-                              <span>Upload a file</span>
-                              <input
-                                id="file-upload"
-                                name="file-upload"
-                                type="file"
-                                className="sr-only"
-                              />
-                            </label>
-                            <p className="pl-1">or drag and drop</p>
-                          </div>
-                          <p className="text-xs text-gray-500">
-                            PNG, JPG, GIF up to 10MB
-                          </p>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -279,86 +180,206 @@ const Create = () => {
               </div>
             </Panel>
 
-            <Panel>
-              <TitleDescription
-                title="Notifications"
-                description="Decide which communications about this project you'd like to receive."
-              />
+            {state?.public ? (
+              <>
+                <Panel>
+                  <TitleDescription
+                    title="Project Details"
+                    description="This information is public."
+                  />
 
-              <div className="mt-5 md:mt-0 md:col-span-2">
-                <div className="space-y-6">
-                  <fieldset>
-                    <div className="space-y-4">
-                      <div className="flex items-start">
-                        <div className="h-5 flex items-center">
-                          <input
-                            id="comments"
-                            name="comments"
-                            type="checkbox"
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                  <div className="mt-5 md:mt-0 md:col-span-2">
+                    <div>
+                      <div className="grid grid-cols-6 gap-6">
+                        <div className="col-span-6 sm:col-span-4">
+                          <CustomInput
+                            htmlFor="display-name"
+                            label="Display Name"
+                            type="text"
+                            name="displayName"
+                            id="displayName"
+                            onChange={handleInputChange}
                           />
                         </div>
-                        <div className="ml-3 text-sm">
-                          <label
-                            htmlFor="comments"
-                            className="font-medium text-gray-700"
-                          >
-                            Comments
-                          </label>
-                          <p className="text-gray-500">
-                            Get notified when someones posts a comment on a
-                            posting.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="flex items-center h-5">
-                          <input
-                            id="candidates"
-                            name="candidates"
-                            type="checkbox"
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+
+                        <div className="col-span-6 sm:col-span-3">
+                          <Label
+                            htmlFor="project-backgroundColor"
+                            label="Project Background Color"
                           />
+
+                          <div className="mt-1">
+                            <ChromePicker
+                              color={state?.backgroundColor}
+                              onChange={handleChangeCompleteBg}
+                              disableAlpha={true}
+                            />
+                          </div>
                         </div>
-                        <div className="ml-3 text-sm">
-                          <label
-                            htmlFor="candidates"
-                            className="font-medium text-gray-700"
-                          >
-                            Candidates
-                          </label>
-                          <p className="text-gray-500">
-                            Get notified when a candidate applies for a job.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="flex items-center h-5">
-                          <input
-                            id="offers"
-                            name="offers"
-                            type="checkbox"
-                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+
+                        <div className="col-span-6 sm:col-span-4">
+                          <Label
+                            htmlFor="project-textColor"
+                            label="Project Text Color"
                           />
+
+                          <div className="mt-1">
+                            <ChromePicker
+                              color={state?.textColor}
+                              onChange={handleChangeCompleteTx}
+                              disableAlpha={true}
+                            />
+                          </div>
                         </div>
-                        <div className="ml-3 text-sm">
-                          <label
-                            htmlFor="offers"
-                            className="font-medium text-gray-700"
-                          >
-                            Offers
-                          </label>
-                          <p className="text-gray-500">
-                            Get notified when a candidate accepts or rejects an
-                            offer.
-                          </p>
+
+                        <div className="col-span-6">
+                          <Label htmlFor="default" label="Default Photo" />
+
+                          <div className="mt-1 flex items-center space-x-5">
+                            <span className="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                              <svg
+                                className="h-full w-full text-gray-300"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                              </svg>
+                            </span>
+                            <button
+                              type="button"
+                              className="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                              Change
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="col-span-6">
+                          <Label htmlFor="cover-photo" label="Cover photo" />
+
+                          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div className="space-y-1 text-center">
+                              <svg
+                                className="mx-auto h-12 w-12 text-gray-400"
+                                stroke="currentColor"
+                                fill="none"
+                                viewBox="0 0 48 48"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                  strokeWidth={2}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              <div className="flex text-sm text-gray-600">
+                                <label
+                                  htmlFor="file-upload"
+                                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                >
+                                  <span>Upload a file</span>
+                                  <input
+                                    id="file-upload"
+                                    name="file-upload"
+                                    type="file"
+                                    className="sr-only"
+                                  />
+                                </label>
+                                <p className="pl-1">or drag and drop</p>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                PNG, JPG, GIF up to 10MB
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </fieldset>
-                </div>
-              </div>
-            </Panel>
+                  </div>
+                </Panel>
+                <Panel>
+                  <TitleDescription
+                    title="Notifications"
+                    description="Decide which communications about this project you'd like to receive."
+                  />
+
+                  <div className="mt-5 md:mt-0 md:col-span-2">
+                    <div className="space-y-6">
+                      <fieldset>
+                        <div className="space-y-4">
+                          <div className="flex items-start">
+                            <div className="h-5 flex items-center">
+                              <input
+                                id="comments"
+                                name="comments"
+                                type="checkbox"
+                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm">
+                              <label
+                                htmlFor="comments"
+                                className="font-medium text-gray-700"
+                              >
+                                Comments
+                              </label>
+                              <p className="text-gray-500">
+                                Get notified when someones posts a comment on a
+                                posting.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <div className="flex items-center h-5">
+                              <input
+                                id="candidates"
+                                name="candidates"
+                                type="checkbox"
+                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm">
+                              <label
+                                htmlFor="candidates"
+                                className="font-medium text-gray-700"
+                              >
+                                Candidates
+                              </label>
+                              <p className="text-gray-500">
+                                Get notified when a candidate applies for a job.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <div className="flex items-center h-5">
+                              <input
+                                id="offers"
+                                name="offers"
+                                type="checkbox"
+                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm">
+                              <label
+                                htmlFor="offers"
+                                className="font-medium text-gray-700"
+                              >
+                                Offers
+                              </label>
+                              <p className="text-gray-500">
+                                Get notified when a candidate accepts or rejects
+                                an offer.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+                  </div>
+                </Panel>
+              </>
+            ) : null}
 
             <div className="flex justify-end px-4">
               <button
@@ -413,4 +434,5 @@ const ideas = [
   "redirecturl",
   "simple yet custom design of site",
   "connect with metamask",
+  "i can create an api so people can connect to it",
 ];
