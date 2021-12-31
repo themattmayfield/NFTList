@@ -1,4 +1,4 @@
-import { useMoralis } from "react-moralis";
+import { useMoralis, useMoralisFile } from "react-moralis";
 import { useState, useEffect } from "react";
 import { useImmer } from "use-immer";
 import Layout from "components/Layout";
@@ -12,14 +12,21 @@ import {
   DescriptiveText,
   DarkButton,
   LightButton,
+  RedButton,
+  CustomButton,
 } from "components/PageUtils";
 import { ChromePicker } from "react-color";
 import { useRouter } from "next/router";
 import getRandomColor from "lib/getRandomColor";
 import useToast from "lib/useToast";
+import { Spinner } from "components/Loading";
+import { TrashIcon } from "@heroicons/react/solid";
+import _ from "lodash";
 
 const Create = () => {
   const { user, Moralis } = useMoralis();
+  const { error, isUploading, moralisFile, saveFile } = useMoralisFile();
+
   const router = useRouter();
   const { id } = router.query;
 
@@ -35,6 +42,8 @@ const Create = () => {
     notifications: {
       signups: false,
     },
+    headerPhoto: null,
+    default: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -93,6 +102,24 @@ const Create = () => {
     });
   };
 
+  const handleHeaderFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const data = await saveFile("whitelistHeader", file);
+
+    setState((draft) => {
+      draft.headerPhoto = data;
+    });
+  };
+
+  const handleDefaultFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const data = await saveFile("whitelistDefault", file);
+
+    setState((draft) => {
+      draft.default = data;
+    });
+  };
+
   const disableForm = !state?.projectName;
 
   if (!user) {
@@ -107,7 +134,7 @@ const Create = () => {
             className="space-y-6"
             onSubmit={async function handleSubmit(event) {
               event.preventDefault();
-
+              console.log(state);
               try {
                 const Whitelists = Moralis.Object.extend("Whitelists");
 
@@ -119,7 +146,10 @@ const Create = () => {
 
                 const whitelists = id ? await query.first() : new Whitelists();
 
-                await whitelists.save({ ...state, user: user.id });
+                await whitelists.save({
+                  ...state,
+                  user: user.id,
+                });
                 router.push("/"); //Maybe go to the view????
               } catch (error) {
                 useToast({ type: "error", message: error.message });
@@ -265,66 +295,130 @@ const Create = () => {
                         </div>
 
                         <div className="col-span-6">
-                          <Label htmlFor="default" label="Default Photo" />
+                          <Label htmlFor="defaultphoto" label="Default Photo" />
 
                           <div className="mt-1 flex items-center space-x-5">
-                            <span className="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                              <svg
-                                className="h-full w-full text-gray-300"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                              </svg>
-                            </span>
-                            <button
-                              type="button"
-                              className="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                              Change
-                            </button>
+                            {(isUploading && (
+                              <div className="grid h-32 place-items-center mt-6">
+                                <Spinner />
+                              </div>
+                            )) ||
+                              (_.isEmpty(state?.default) && (
+                                <div className="flex items-center space-x-2">
+                                  <svg
+                                    className="mx-auto h-12 w-12 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      strokeWidth={2}
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                  <label
+                                    htmlFor="default"
+                                    className="inline-flex cursor-pointer justify-center items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-black dark:text-white bg-white hover:bg-gray-100 dark:bg-black border border-gray-300 dark:border-black dark:hover:bg-nftGray transition duration-300 ease-in-out focus:outline-none"
+                                  >
+                                    <span>Upload Default Photo</span>
+                                    <input
+                                      id="default"
+                                      name="default"
+                                      type="file"
+                                      className="sr-only"
+                                      onChange={handleDefaultFileUpload}
+                                    />
+                                  </label>
+                                </div>
+                              )) || (
+                                <div className="flex items-center space-x-2">
+                                  <img
+                                    className="w-32"
+                                    src={state.default?._url}
+                                  />
+                                  <RedButton
+                                    text="Delete Default Photo"
+                                    icon={<TrashIcon />}
+                                    action={() =>
+                                      setState((draft) => {
+                                        draft.default = null;
+                                      })
+                                    }
+                                  />
+                                </div>
+                              )}
+
+                            {/* <CustomButton text="Change" /> */}
                           </div>
                         </div>
 
                         <div className="col-span-6">
                           <Label htmlFor="cover-photo" label="Cover photo" />
-
-                          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                            <div className="space-y-1 text-center">
-                              <svg
-                                className="mx-auto h-12 w-12 text-gray-400"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 48 48"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                  strokeWidth={2}
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              <div className="flex text-sm text-gray-600">
-                                <label
-                                  htmlFor="file-upload"
-                                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                                >
-                                  <span>Upload a file</span>
-                                  <input
-                                    id="file-upload"
-                                    name="file-upload"
-                                    type="file"
-                                    className="sr-only"
-                                  />
-                                </label>
-                                <p className="pl-1">or drag and drop</p>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                PNG, JPG, GIF up to 10MB
-                              </p>
+                          {!_.isEmpty(state?.headerPhoto) ? (
+                            <div className="mt-1">
+                              <RedButton
+                                text="Delete Cover Photo"
+                                icon={<TrashIcon />}
+                                action={() =>
+                                  setState((draft) => {
+                                    draft.headerPhoto = null;
+                                  })
+                                }
+                              />
                             </div>
-                          </div>
+                          ) : (
+                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                              <div className="space-y-1 text-center">
+                                <svg
+                                  className="mx-auto h-12 w-12 text-gray-400"
+                                  stroke="currentColor"
+                                  fill="none"
+                                  viewBox="0 0 48 48"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                    strokeWidth={2}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                                <div className="flex text-sm text-gray-600">
+                                  <label
+                                    htmlFor="headerPhoto"
+                                    className="relative cursor-pointer rounded-md underline font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                  >
+                                    <span>Upload a file</span>
+                                    <input
+                                      id="headerPhoto"
+                                      name="headerPhoto"
+                                      type="file"
+                                      className="sr-only"
+                                      onChange={handleHeaderFileUpload}
+                                    />
+                                  </label>
+                                  <p className="pl-1">or drag and drop</p>
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                  PNG, JPG, GIF up to 10MB
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {isUploading ? (
+                            <div className="grid h-32 place-items-center mt-6">
+                              <Spinner />
+                            </div>
+                          ) : (
+                            <img
+                              className="pt-4"
+                              src={state.headerPhoto?._url}
+                            />
+                          )}
                         </div>
                       </div>
                     </div>

@@ -143,7 +143,7 @@ export const Toggle = ({ state, setState, description }) => {
 
 export const CustomButton = ({ text, icon, action, disabled, type }) => (
   <button
-    onClick={() => action()}
+    onClick={action ? () => action() : null}
     type={type || "button"}
     disabled={disabled}
     type="button"
@@ -171,7 +171,7 @@ export const DarkButton = ({ text, icon, action, disabled, type }) => (
       onClick={action ? () => action() : null}
       className={`${
         disabled ? "cursor-not-allowed" : ""
-      } order-0 inline-flex items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
+      } inline-flex items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
     >
       {icon ? (
         <span
@@ -200,6 +200,24 @@ export const LightButton = ({ text, icon, action, disabled, type }) => (
         className="-ml-1 mr-2 h-5 w-5 text-black dark:text-white"
         aria-hidden="true"
       >
+        {icon}
+      </span>
+    ) : null}
+    <span>{text}</span>
+  </button>
+);
+
+export const RedButton = ({ text, icon, action, disabled, type }) => (
+  <button
+    disabled={disabled}
+    type={type || "button"}
+    onClick={action ? () => action() : null}
+    className={`${
+      disabled ? "cursor-not-allowed" : ""
+    } inline-flex justify-center items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-500  transition duration-300 ease-in-out focus:outline-none`}
+  >
+    {icon ? (
+      <span className="-ml-1 mr-2 h-5 w-5 text-white" aria-hidden="true">
         {icon}
       </span>
     ) : null}

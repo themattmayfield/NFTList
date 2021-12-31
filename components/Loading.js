@@ -10,7 +10,7 @@ const Container = ({ children }) => (
   <div className="grid h-screen place-items-center">{children}</div>
 );
 
-const Spinner = () => (
+export const Spinner = () => (
   <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-successGreen" />
 );
 

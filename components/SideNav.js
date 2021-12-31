@@ -113,7 +113,7 @@ const NavGuts = ({ user, desktop, logout, router }) => (
   <div
     className={`${
       desktop ? "hidden lg:flex" : "flex"
-    }  flex-col w-full relative lg:w-64 lg:fixed inset-y-0 dark:border-nftGray lg:border-r lg:border-gray-200 pt-5 pb-4 `}
+    }  flex-col w-full relative lg:w-64 lg:fixed inset-y-0 dark:border-nftGray lg:border-r lg:border-gray-200 pt-5 pb-4 bg-gray-100 dark:bg-black `}
   >
     <div className="flex items-center flex-shrink-0 px-6">
       <Logo />
