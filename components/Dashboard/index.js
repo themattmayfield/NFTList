@@ -6,7 +6,7 @@ import { ChevronRightIcon, DotsVerticalIcon } from "@heroicons/react/solid";
 import Layout from "components/Layout";
 import Link from "next/link";
 import getInitials from "lib/getInitials";
-import EmptyProjects from "./EmptyProjects";
+import EmptyProjects from "./EmptyProject";
 import pluralize from "pluralize";
 import { classNames } from "components/PageUtils";
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
@@ -76,9 +76,7 @@ export default function Dashboard() {
     <>
       <Layout pageTitle="Dashboard" rightSlot={<RightSlot />}>
         {!projects.length ? (
-          <div className="pt-12">
-            <EmptyProjects />
-          </div>
+          <EmptyProjects />
         ) : (
           <>
             <RecentProjects
@@ -139,7 +137,7 @@ const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
                 {project.projectName}
               </a>
               <p className="text-gray-500">
-                {pluralize("Member", project.members.length, true)}
+                {pluralize("Member", project.members?.length, true)}
               </p>
             </div>
             <Menu as="div" className="flex-shrink-0 pr-2">
@@ -158,21 +156,23 @@ const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
               >
                 <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white dark:bg-black dark:border dark:border-nftGray ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 dark:divide-nftGray focus:outline-none">
                   <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active
-                              ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
-                              : "text-gray-700 dark:text-white",
-                            "block px-4 py-2 text-sm"
-                          )}
-                        >
-                          View
-                        </a>
-                      )}
-                    </Menu.Item>
+                    <Link href={`projectDetails/${project.id}`}>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active
+                                ? "bg-gray-100 dark:bg-nftGray text-gray-900 dark:text-white"
+                                : "text-gray-700 dark:text-white",
+                              "block px-4 py-2 text-sm"
+                            )}
+                          >
+                            View
+                          </a>
+                        )}
+                      </Menu.Item>
+                    </Link>
                   </div>
                   <div className="py-1">
                     <Menu.Item>
@@ -236,20 +236,21 @@ const ProjectList = ({ projects, handlePin, router }) => (
           >
             <a
               href="#"
-              className="group flex items-center justify-between px-4 py-4 hover:bg-gray-50 dark:hover:bg-nftGray sm:px-6"
+              className="group flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-nftGray sm:px-6"
             >
               <span className="flex items-center truncate space-x-3">
-                <span aria-hidden="true">
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePin(project.pinned ? "unpin" : "pin", project.id);
+                  }}
+                  className="py-2 px-1 hover:bg-gray-300 dark:hover:bg-black rounded"
+                  aria-hidden="true"
+                >
                   {project.pinned ? (
-                    <BsPinAngleFill
-                      onClick={() => handlePin("unpin", project.id)}
-                      className="text-black dark:text-white cursor-pointer"
-                    />
+                    <BsPinAngleFill className="text-black dark:text-white cursor-pointer" />
                   ) : (
-                    <BsPinAngle
-                      onClick={() => handlePin("pin", project.id)}
-                      className="text-black dark:text-white cursor-pointer"
-                    />
+                    <BsPinAngle className="text-black dark:text-white cursor-pointer" />
                   )}
                 </span>
                 <span className="font-medium truncate text-sm leading-6">
@@ -314,7 +315,7 @@ const ProjectTable = ({ projects, handlePin, router }) => (
                 <td className="px-6 py-3 text-sm text-gray-500 font-medium">
                   <div className="flex items-center space-x-2">
                     <span className="flex-shrink-0 text-xs leading-5 font-medium">
-                      +{project.members.length}
+                      +{project.members?.length || 0}
                     </span>
                   </div>
                 </td>
@@ -322,9 +323,14 @@ const ProjectTable = ({ projects, handlePin, router }) => (
                   {project.lastUpdated}
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
-                  <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                    View
-                  </a>
+                  <Link href={`projectDetails/${project.id}`}>
+                    <a
+                      href="#"
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      View
+                    </a>
+                  </Link>
                 </td>
               </tr>
             )

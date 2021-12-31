@@ -1,5 +1,5 @@
 import { useMoralis } from "react-moralis";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useImmer } from "use-immer";
 import Layout from "components/Layout";
 import {
@@ -17,7 +17,8 @@ import getRandomColor from "lib/getRandomColor";
 const Create = () => {
   const { user, Moralis } = useMoralis();
   const router = useRouter();
-  console.log(user);
+  const { id } = router.query;
+
   const [state, setState] = useImmer({
     projectName: "",
     website: "",
@@ -27,6 +28,33 @@ const Create = () => {
     backgroundColor: getRandomColor(),
     textColor: "#000000",
   });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(async () => {
+    if (id) {
+      setLoading(true);
+      try {
+        const Projects = Moralis.Object.extend("Projects");
+        const query = new Moralis.Query(Projects);
+        query.equalTo("user", user.id);
+        query.equalTo("objectId", id);
+        const result = await query.first();
+        console.log(result);
+        const formattedProject = {
+          id: result.id,
+          ...result.attributes,
+        };
+        console.log(formattedProject);
+        setState(formattedProject);
+      } catch (error) {
+        // TODO
+        // Toast with error message.
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [id]);
 
   const handleInputChange = (event) => {
     const target = event.target;
@@ -67,9 +95,16 @@ const Create = () => {
 
               try {
                 const Projects = Moralis.Object.extend("Projects");
-                const projects = new Projects();
 
-                await projects.save({ ...state, user: user.id, members: [] });
+                const query = id ? new Moralis.Query(Projects) : null;
+                if (query) {
+                  query.equalTo("user", user.id);
+                  query.equalTo("objectId", id);
+                }
+
+                const projects = id ? await query.first() : new Projects();
+
+                await projects.save({ ...state, user: user.id });
                 router.push("/");
               } catch (error) {
                 // TODO
@@ -129,6 +164,7 @@ const Create = () => {
                         type="text"
                         name="projectName"
                         id="projectName"
+                        value={state.projectName}
                         onChange={handleInputChange}
                       />
                     </div>
@@ -141,6 +177,7 @@ const Create = () => {
                         name="website"
                         id="website"
                         placeholder="www.example.com"
+                        value={state.website}
                         onChange={handleInputChange}
                       />
                     </div>
@@ -153,6 +190,7 @@ const Create = () => {
                           min="0"
                           name="whitelistLimit"
                           id="whitelistLimit"
+                          value={state.whitelistLimit}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -198,6 +236,7 @@ const Create = () => {
                             type="text"
                             name="displayName"
                             id="displayName"
+                            value={state.displayName}
                             onChange={handleInputChange}
                           />
                         </div>
