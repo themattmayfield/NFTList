@@ -9,10 +9,14 @@ import {
   CustomInput,
   CustomPrefixInput,
   Toggle,
+  DescriptiveText,
+  DarkButton,
+  LightButton,
 } from "components/PageUtils";
 import { ChromePicker } from "react-color";
 import { useRouter } from "next/router";
 import getRandomColor from "lib/getRandomColor";
+import useToast from "lib/useToast";
 
 const Create = () => {
   const { user, Moralis } = useMoralis();
@@ -23,19 +27,24 @@ const Create = () => {
     projectName: "",
     website: "",
     whitelistLimit: undefined,
-    public: false,
+    isPublic: false,
     displayName: "",
+    redirect: "",
     backgroundColor: getRandomColor(),
     textColor: "#000000",
+    notifications: {
+      signups: false,
+    },
   });
+
   const [loading, setLoading] = useState(false);
 
   useEffect(async () => {
     if (id) {
       setLoading(true);
       try {
-        const Projects = Moralis.Object.extend("Projects");
-        const query = new Moralis.Query(Projects);
+        const Whitelists = Moralis.Object.extend("Whitelists");
+        const query = new Moralis.Query(Whitelists);
         query.equalTo("user", user.id);
         query.equalTo("objectId", id);
         const result = await query.first();
@@ -47,9 +56,8 @@ const Create = () => {
         console.log(formattedProject);
         setState(formattedProject);
       } catch (error) {
-        // TODO
-        // Toast with error message.
-        console.log(error);
+        useToast({ type: "error", message: error.message });
+        console.log(error.message);
       } finally {
         setLoading(false);
       }
@@ -60,6 +68,13 @@ const Create = () => {
     const target = event.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
+
+    if (target.type === "checkbox") {
+      setState((draft) => {
+        draft["notifications"]["signups"] = value;
+      });
+      return true;
+    }
 
     setState((draft) => {
       draft[name] = value;
@@ -78,7 +93,7 @@ const Create = () => {
     });
   };
 
-  const disableForm = !state.projectName;
+  const disableForm = !state?.projectName;
 
   if (!user) {
     return <p>go to sign in</p>;
@@ -94,58 +109,22 @@ const Create = () => {
               event.preventDefault();
 
               try {
-                const Projects = Moralis.Object.extend("Projects");
+                const Whitelists = Moralis.Object.extend("Whitelists");
 
-                const query = id ? new Moralis.Query(Projects) : null;
+                const query = id ? new Moralis.Query(Whitelists) : null;
                 if (query) {
                   query.equalTo("user", user.id);
                   query.equalTo("objectId", id);
                 }
 
-                const projects = id ? await query.first() : new Projects();
+                const whitelists = id ? await query.first() : new Whitelists();
 
-                await projects.save({ ...state, user: user.id });
-                router.push("/");
+                await whitelists.save({ ...state, user: user.id });
+                router.push("/"); //Maybe go to the view????
               } catch (error) {
-                // TODO
-                // Toast with error message.
-                console.log(error);
+                useToast({ type: "error", message: error.message });
+                console.log(error.message);
               }
-
-              // I need to be able to check if the response is not good
-
-              //   onClick={() =>
-              //     setUserData({
-              //       test: false,
-              //       //   username: "Batman",
-              //       //   email: "batman@marvel.com",
-              //       numberOfCats: 12,
-              //     })
-              //   }
-
-              // try {
-              //   const response = await fetchJson("/api/register", {
-              //     method: "POST",
-              //     headers: { "Content-Type": "application/json" },
-              //     body: JSON.stringify(body),
-              //   });
-              //   const { success, errors } = response;
-
-              //   if (errors.length) {
-              //     console.log(errors);
-              //     setErrorMsg(errors[0]);
-              //     return true;
-              //   }
-              //   localStorage.removeItem("LCRegister");
-              //   Router.push("/login");
-              // } catch (error) {
-              //   console.log(error);
-              //   if (error instanceof FetchError) {
-              //     setErrorMsg(error.data.message);
-              //   } else {
-              //     console.error("An unexpected error happened:", error);
-              //   }
-              // }
             }}
           >
             <Panel>
@@ -164,7 +143,7 @@ const Create = () => {
                         type="text"
                         name="projectName"
                         id="projectName"
-                        value={state.projectName}
+                        value={state?.projectName}
                         onChange={handleInputChange}
                       />
                     </div>
@@ -177,7 +156,7 @@ const Create = () => {
                         name="website"
                         id="website"
                         placeholder="www.example.com"
-                        value={state.website}
+                        value={state?.website}
                         onChange={handleInputChange}
                       />
                     </div>
@@ -190,7 +169,7 @@ const Create = () => {
                           min="0"
                           name="whitelistLimit"
                           id="whitelistLimit"
-                          value={state.whitelistLimit}
+                          value={state?.whitelistLimit}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -199,14 +178,14 @@ const Create = () => {
                       </p>
                     </div>
                     <div className="col-span-6 sm:col-span-4">
-                      <Label htmlFor="public" label="Public" />
+                      <Label htmlFor="isPublic" label="Public" />
 
                       <div className="relative mt-1">
                         <Toggle
-                          state={state.public}
+                          state={state?.isPublic}
                           setState={() =>
                             setState((draft) => {
-                              draft.public = !draft.public;
+                              draft.isPublic = !draft.isPublic;
                             })
                           }
                           description="Do you want to make your whitelist public? This will allow you to create a simple webpage for people to join your whitelist themselves."
@@ -218,7 +197,7 @@ const Create = () => {
               </div>
             </Panel>
 
-            {state?.public ? (
+            {state?.isPublic ? (
               <>
                 <Panel>
                   <TitleDescription
@@ -229,16 +208,30 @@ const Create = () => {
                   <div className="mt-5 md:mt-0 md:col-span-2">
                     <div>
                       <div className="grid grid-cols-6 gap-6">
-                        <div className="col-span-6 sm:col-span-4">
+                        <div className="col-span-6">
                           <CustomInput
                             htmlFor="display-name"
                             label="Display Name"
                             type="text"
                             name="displayName"
                             id="displayName"
-                            value={state.displayName}
+                            value={state?.displayName}
                             onChange={handleInputChange}
                           />
+                        </div>
+
+                        <div className="col-span-6">
+                          <CustomPrefixInput
+                            htmlFor="redirect"
+                            label="Redirect Url"
+                            type="text"
+                            name="redirect"
+                            id="redirect"
+                            placeholder="www.example.com"
+                            value={state?.redirect}
+                            onChange={handleInputChange}
+                          />
+                          <DescriptiveText text="This link will be where the user goes after succesfully signing up to the whitelist." />
                         </div>
 
                         <div className="col-span-6 sm:col-span-3">
@@ -256,7 +249,7 @@ const Create = () => {
                           </div>
                         </div>
 
-                        <div className="col-span-6 sm:col-span-4">
+                        <div className="col-span-6 sm:col-span-3">
                           <Label
                             htmlFor="project-textColor"
                             label="Project Text Color"
@@ -347,71 +340,17 @@ const Create = () => {
                     <div className="space-y-6">
                       <fieldset>
                         <div className="space-y-4">
-                          <div className="flex items-start">
-                            <div className="h-5 flex items-center">
-                              <input
-                                id="comments"
-                                name="comments"
-                                type="checkbox"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                              />
-                            </div>
-                            <div className="ml-3 text-sm">
-                              <label
-                                htmlFor="comments"
-                                className="font-medium text-gray-700"
-                              >
-                                Comments
-                              </label>
-                              <p className="text-gray-500">
-                                Get notified when someones posts a comment on a
-                                posting.
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start">
-                            <div className="flex items-center h-5">
-                              <input
-                                id="candidates"
-                                name="candidates"
-                                type="checkbox"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                              />
-                            </div>
-                            <div className="ml-3 text-sm">
-                              <label
-                                htmlFor="candidates"
-                                className="font-medium text-gray-700"
-                              >
-                                Candidates
-                              </label>
-                              <p className="text-gray-500">
-                                Get notified when a candidate applies for a job.
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start">
-                            <div className="flex items-center h-5">
-                              <input
-                                id="offers"
-                                name="offers"
-                                type="checkbox"
-                                className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                              />
-                            </div>
-                            <div className="ml-3 text-sm">
-                              <label
-                                htmlFor="offers"
-                                className="font-medium text-gray-700"
-                              >
-                                Offers
-                              </label>
-                              <p className="text-gray-500">
-                                Get notified when a candidate accepts or rejects
-                                an offer.
-                              </p>
-                            </div>
-                          </div>
+                          <NotificationItems
+                            inputProps={{
+                              id: "signups",
+                              name: "signups",
+                              type: "checkbox",
+                              onChange: handleInputChange,
+                              checked: state?.notifications?.signups,
+                            }}
+                            label="New Signups"
+                            description="Get notified when someone signs up to your whitelis"
+                          />
                         </div>
                       </fieldset>
                     </div>
@@ -420,20 +359,9 @@ const Create = () => {
               </>
             ) : null}
 
-            <div className="flex justify-end px-4">
-              <button
-                type="button"
-                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancel
-              </button>
-              <button
-                disabled={disableForm}
-                type="submit"
-                className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Save
-              </button>
+            <div className="flex justify-end px-4 space-x-3">
+              <DarkButton text="Cancel" action={() => router.push("/")} />
+              <LightButton disabled={disableForm} text="Save" type="submit" />
             </div>
           </form>
         </MainContentWrapper>
@@ -452,18 +380,25 @@ const TitleDescription = ({ title, description, rightSlot }) => (
       </h3>
       {rightSlot}
     </div>
-    <p className="mt-1 text-sm text-gray-500">{description}</p>
+    <DescriptiveText text={description} />
   </div>
 );
 
-const Input = ({ type, name, id, autoComplete }) => (
-  <input
-    type={type || "text"}
-    name={name}
-    id={id}
-    autoComplete={autoComplete || false}
-    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-  />
+const NotificationItems = ({ label, description, inputProps }) => (
+  <div className="flex items-start">
+    <div className="h-5 flex items-center">
+      <input
+        {...inputProps}
+        className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+      />
+    </div>
+    <div className="ml-3 text-sm">
+      <label htmlFor="comments" className="font-medium text-gray-700">
+        {label}
+      </label>
+      <p className="text-gray-500">{description}</p>
+    </div>
+  </div>
 );
 
 const ideas = [
@@ -474,4 +409,5 @@ const ideas = [
   "simple yet custom design of site",
   "connect with metamask",
   "i can create an api so people can connect to it",
+  "public and private mint, private connects directly to whitelist",
 ];

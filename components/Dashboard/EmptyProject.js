@@ -1,5 +1,6 @@
 import { PlusIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
+import { CustomButton } from "components/PageUtils";
 
 export default function EmptyProjects() {
   const router = useRouter();
@@ -28,14 +29,11 @@ export default function EmptyProjects() {
           Get started by creating a new project.
         </p>
         <div className="mt-6">
-          <button
-            type="button"
-            onClick={() => router.push("/create")}
-            className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-black dark:text-white bg-white hover:bg-gray-100 dark:bg-nftGray border border-gray-300 dark:border-nftGray dark:hover:bg-black transition duration-300 ease-in-out focus:outline-none "
-          >
-            <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-            New Project
-          </button>
+          <CustomButton
+            action={() => router.push("/create")}
+            icon={<PlusIcon aria-hidden="true" />}
+            text="New Project"
+          />
         </div>
       </div>
     </div>

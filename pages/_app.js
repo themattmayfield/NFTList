@@ -1,7 +1,8 @@
 import "../styles/globals.css";
 import { MoralisProvider } from "react-moralis";
 import { ThemeProvider } from "next-themes";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function MyApp({ Component, pageProps }) {
   return (
     <MoralisProvider
@@ -10,6 +11,7 @@ function MyApp({ Component, pageProps }) {
     >
       <ThemeProvider enableSystem attribute="class">
         <Component {...pageProps} />
+        <ToastContainer />
       </ThemeProvider>
     </MoralisProvider>
   );

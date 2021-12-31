@@ -1,4 +1,4 @@
-import { PlusIcon } from "@heroicons/react/solid";
+import { CustomButton } from "components/PageUtils";
 import { useRouter } from "next/router";
 
 export default function NoProject() {
@@ -28,13 +28,10 @@ export default function NoProject() {
           There was no project found.
         </p>
         <div className="mt-6">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-black dark:text-white bg-white hover:bg-gray-100 dark:bg-nftGray border border-gray-300 dark:border-nftGray dark:hover:bg-black transition duration-300 ease-in-out focus:outline-none "
-          >
-            Go to Dashboard
-          </button>
+          <CustomButton
+            action={() => router.push("/")}
+            text="Go to Dashboard"
+          />
         </div>
       </div>
     </div>

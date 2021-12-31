@@ -10,7 +10,7 @@ import {
 import { SelectorIcon } from "@heroicons/react/solid";
 import MetaMaskLogo from "public/MetaMaskLogo.png";
 import Image from "next/image";
-import { Logo } from "./PageUtils";
+import { Logo, classNames } from "./PageUtils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -38,10 +38,6 @@ const menuItems = [
     href: "/",
   },
 ];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 const SideNav = ({ sidebarOpen, setSidebarOpen }) => {
   const { logout, user } = useMoralis();
@@ -224,7 +220,7 @@ const NavGuts = ({ user, desktop, logout, router }) => (
                 className={classNames(
                   item.href === router.asPath
                     ? "bg-gray-200 dark:bg-nftGray text-gray-900 dark:text-white"
-                    : "text-gray-700 dark:text-gray-500 hover:text-gray-900 hover:dark:text-white hover:bg-gray-50 hover:dark:bg-nftGray/70",
+                    : "text-gray-700 dark:text-gray-500 hover:text-gray-900 hover:dark:text-white hover:bg-gray-300 hover:dark:bg-nftGray/70",
                   "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
                 )}
                 aria-current={item.href === router.asPath ? "page" : undefined}

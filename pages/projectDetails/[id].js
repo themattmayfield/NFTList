@@ -12,6 +12,7 @@ import {
 import Loading from "components/Loading";
 import _ from "lodash";
 import NoProject from "components/ProjectDetails/NoProject";
+import useToast from "lib/useToast";
 
 const tabs = [
   { name: "Profile", href: "#", current: true },
@@ -284,8 +285,8 @@ const ProjectDetails = () => {
   useEffect(async () => {
     if (id) {
       try {
-        const Projects = Moralis.Object.extend("Projects");
-        const query = new Moralis.Query(Projects);
+        const Whitelists = Moralis.Object.extend("Whitelists");
+        const query = new Moralis.Query(Whitelists);
         query.equalTo("user", user.id);
         query.equalTo("objectId", id);
         const result = await query.first();
@@ -297,9 +298,8 @@ const ProjectDetails = () => {
         console.log(formattedProject);
         setProject(formattedProject);
       } catch (error) {
-        // TODO
-        // Toast with error message.
-        console.log(error);
+        useToast({ type: "error", message: error.message });
+        console.log(error.message);
       } finally {
         setLoading(false);
       }

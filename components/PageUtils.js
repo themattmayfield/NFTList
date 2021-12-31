@@ -141,15 +141,72 @@ export const Toggle = ({ state, setState, description }) => {
   );
 };
 
-export const CustomButton = ({ text, icon, action }) => (
+export const CustomButton = ({ text, icon, action, disabled, type }) => (
   <button
     onClick={() => action()}
+    type={type || "button"}
+    disabled={disabled}
     type="button"
-    className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+    className={`${
+      disabled ? "cursor-not-allowed" : ""
+    } inline-flex justify-center items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-black dark:text-white bg-white hover:bg-gray-100 dark:bg-nftGray border border-gray-300 dark:border-nftGray dark:hover:bg-black transition duration-300 ease-in-out focus:outline-none `}
   >
-    <span className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true">
-      {icon}
-    </span>
+    {icon ? (
+      <span
+        className="-ml-1 mr-2 h-5 w-5 text-black dark:text-white"
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+    ) : null}
     <span>{text}</span>
   </button>
+);
+
+export const DarkButton = ({ text, icon, action, disabled, type }) => (
+  <div>
+    <button
+      type={type || "button"}
+      disabled={disabled}
+      onClick={action ? () => action() : null}
+      className={`${
+        disabled ? "cursor-not-allowed" : ""
+      } order-0 inline-flex items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
+    >
+      {icon ? (
+        <span
+          className="-ml-1 mr-2 h-5 w-5 text-black dark:text-white"
+          aria-hidden="true"
+        >
+          {icon}
+        </span>
+      ) : null}
+      <span>{text}</span>
+    </button>
+  </div>
+);
+
+export const LightButton = ({ text, icon, action, disabled, type }) => (
+  <button
+    disabled={disabled}
+    type={type || "button"}
+    onClick={action ? () => action() : null}
+    className={`${
+      disabled ? "cursor-not-allowed" : ""
+    } inline-flex justify-center items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-black bg-white hover:bg-gray-100 border dark:hover:bg-gray-300 border-gray-300 transition duration-300 ease-in-out focus:outline-none`}
+  >
+    {icon ? (
+      <span
+        className="-ml-1 mr-2 h-5 w-5 text-black dark:text-white"
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+    ) : null}
+    <span>{text}</span>
+  </button>
+);
+
+export const DescriptiveText = ({ text }) => (
+  <p className="mt-1 text-sm text-gray-500">{text}</p>
 );
