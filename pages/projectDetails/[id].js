@@ -15,7 +15,7 @@ import NoProject from "components/ProjectDetails/NoProject";
 import useToast from "lib/useToast";
 
 const tabs = [
-  { name: "Profile", href: "#", current: true },
+  { name: "Info", href: "#", current: true },
   { name: "Members", href: "#", current: false },
 ];
 const profile = {
@@ -281,7 +281,7 @@ const ProjectDetails = () => {
 
   const [project, setProject] = useState({});
   const [loading, setLoading] = useState(true);
-
+  console.log(project);
   useEffect(async () => {
     if (id) {
       try {
@@ -330,51 +330,15 @@ const ProjectDetails = () => {
               <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
                 <article>
                   {/* Profile header */}
-                  <div>
-                    <div>
-                      <img
-                        className="h-32 w-full object-cover lg:h-48"
-                        src={profile.coverImageUrl}
-                        alt=""
-                      />
-                    </div>
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                      <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
-                        <div className="flex">
-                          <img
-                            className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
-                            src={profile.imageUrl}
-                            alt=""
-                          />
-                        </div>
-                        <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
-                          <div className="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
-                            <h1 className="text-2xl font-bold text-gray-900 truncate">
-                              {profile.name}
-                            </h1>
-                          </div>
-                          <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                            <CustomButton
-                              text="Edit"
-                              icon={<PencilIcon />}
-                              action={() =>
-                                router.push(`/create?id=${project.id}`)
-                              }
-                            />
-                            <CustomButton
-                              text="Delete Project"
-                              icon={<TrashIcon />}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
-                        <h1 className="text-2xl font-bold text-gray-900 truncate">
-                          {profile.name}
-                        </h1>
-                      </div>
-                    </div>
-                  </div>
+                  {(project?.headerPhoto?._url && project?.default?._url && (
+                    <HeaderDefault />
+                  )) ||
+                    (project?.headerPhoto?._url && !project?.default?._url && (
+                      <HeaderOnly />
+                    )) ||
+                    (!project?.headerPhoto?._url && project?.default?._url && (
+                      <DefaultOnly />
+                    ))}
 
                   {/* Tabs */}
                   <div className="mt-6 sm:mt-2 2xl:mt-5">
@@ -564,3 +528,52 @@ const ProjectDetails = () => {
 };
 
 export default ProjectDetails;
+
+const HeaderDefault = () => (
+  <div>
+    <div>
+      <img
+        className="h-32 w-full object-cover lg:h-48"
+        src={project?.headerPhoto?._url}
+        alt=""
+      />
+    </div>
+
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5`}>
+        <div className="flex">
+          <img
+            className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32 object-cover"
+            src={project?.default?._url}
+            alt=""
+          />
+        </div>
+
+        <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
+          <div className="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
+              {project.projectName}
+            </h1>
+          </div>
+          <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <CustomButton
+              text="Edit"
+              icon={<PencilIcon />}
+              action={() => router.push(`/create?id=${project.id}`)}
+            />
+            <CustomButton text="Delete Project" icon={<TrashIcon />} />
+          </div>
+        </div>
+      </div>
+      <div className="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
+          {project.projectName}
+        </h1>
+      </div>
+    </div>
+  </div>
+);
+
+const HeaderOnly = () => <div></div>;
+
+const DefaultOnly = () => <div></div>;
