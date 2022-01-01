@@ -13,7 +13,7 @@ import {
   DarkButton,
   LightButton,
   RedButton,
-  CustomButton,
+  CustomTextArea,
 } from "components/PageUtils";
 import { ChromePicker } from "react-color";
 import { useRouter } from "next/router";
@@ -37,6 +37,7 @@ const Create = () => {
     isPublic: false,
     displayName: "",
     redirect: "",
+    about: "",
     backgroundColor: getRandomColor(),
     textColor: "#000000",
     notifications: {
@@ -150,6 +151,12 @@ const Create = () => {
                   ...state,
                   user: user.id,
                 });
+                useToast({
+                  type: "success",
+                  message: `${
+                    id ? "Updated successfully" : "Whilist project created"
+                  }`,
+                });
                 router.push("/"); //Maybe go to the view????
               } catch (error) {
                 useToast({ type: "error", message: error.message });
@@ -262,6 +269,20 @@ const Create = () => {
                             onChange={handleInputChange}
                           />
                           <DescriptiveText text="This link will be where the user goes after succesfully signing up to the whitelist." />
+                        </div>
+
+                        <div className="col-span-6">
+                          <CustomTextArea
+                            rows={3}
+                            htmlFor="about"
+                            label="About This Project"
+                            type="text"
+                            name="about"
+                            id="about"
+                            value={state?.about}
+                            onChange={handleInputChange}
+                          />
+                          <DescriptiveText text="Let people know more about what they are whitelisting to." />
                         </div>
 
                         <div className="col-span-6 sm:col-span-3">

@@ -76,31 +76,19 @@ export const CustomPrefixInput = (props) => {
   );
 };
 
-export const CustomTextArea = ({
-  type,
-  name,
-  id,
-  autoComplete,
-  htmlFor,
-  label,
-  placeholder,
-}) => {
+export const CustomTextArea = (props) => {
   return (
     <>
       <label
-        htmlFor={htmlFor}
+        htmlFor={props.htmlFor}
         className="block text-sm font-medium text-gray-700 dark:text-white"
       >
-        {label}
+        {props.label}
       </label>
       <div className="mt-1">
         <textarea
-          id="about"
-          name="about"
-          rows={3}
+          {...props}
           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 dark:border-gray-700 dark:bg-black rounded-md"
-          placeholder="About this project"
-          defaultValue={""}
         />
       </div>
     </>
@@ -164,26 +152,21 @@ export const CustomButton = ({ text, icon, action, disabled, type }) => (
 );
 
 export const DarkButton = ({ text, icon, action, disabled, type }) => (
-  <div>
-    <button
-      type={type || "button"}
-      disabled={disabled}
-      onClick={action ? () => action() : null}
-      className={`${
-        disabled ? "cursor-not-allowed" : ""
-      } inline-flex items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
-    >
-      {icon ? (
-        <span
-          className="-ml-1 mr-2 h-5 w-5 text-black dark:text-white"
-          aria-hidden="true"
-        >
-          {icon}
-        </span>
-      ) : null}
-      <span>{text}</span>
-    </button>
-  </div>
+  <button
+    type={type || "button"}
+    disabled={disabled}
+    onClick={action ? () => action() : null}
+    className={`${
+      disabled ? "cursor-not-allowed" : ""
+    } inline-flex justify-center items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
+  >
+    {icon ? (
+      <span className="-ml-1 mr-2 h-5 w-5 text-white" aria-hidden="true">
+        {icon}
+      </span>
+    ) : null}
+    <span>{text}</span>
+  </button>
 );
 
 export const LightButton = ({ text, icon, action, disabled, type }) => (
