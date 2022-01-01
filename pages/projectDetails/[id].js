@@ -263,22 +263,15 @@ const ProjectDetails = () => {
                           searchTerm={searchTerm}
                           memberCount={project.members.length}
                           addWallet={addWallet}
+                          walletInput={walletInput}
+                          setWalletInput={setWalletInput}
                         />
                       ) : (
-                        <div className="max-w-xl space-y-2 mt-6 px-4 sm:px-6 lg:px-8 sm:flex sm:space-y-0 sm:space-x-2 items-end w-full">
-                          <div className="flex-1">
-                            <CustomInput
-                              htmlFor="addWallet"
-                              label="Add Wallet"
-                              type="text"
-                              name="addWallet"
-                              id="addWallet"
-                              value={walletInput}
-                              onChange={(e) => setWalletInput(e.target.value)}
-                            />
-                          </div>
-                          <AddWalletButton addWallet={addWallet} />
-                        </div>
+                        <AddWalletComponent
+                          addWallet={addWallet}
+                          walletInput={walletInput}
+                          setWalletInput={setWalletInput}
+                        />
                       )}
                     </Tab.Panel>
                   </Tab.Group>
@@ -407,8 +400,21 @@ const DefaultOnly = ({ project, router }) => (
   </div>
 );
 
-const AddWalletButton = ({ addWallet }) => (
-  <CustomButton text="Add Wallet" action={addWallet} />
+const AddWalletComponent = ({ addWallet, walletInput, setWalletInput }) => (
+  <div className="max-w-xl space-y-2 mt-6 px-4 sm:px-6 lg:px-8 sm:flex sm:space-y-0 sm:space-x-2 items-end w-full">
+    <div className="flex-1">
+      <CustomInput
+        htmlFor="addWallet"
+        label="Add Wallet"
+        type="text"
+        name="addWallet"
+        id="addWallet"
+        value={walletInput}
+        onChange={(e) => setWalletInput(e.target.value)}
+      />
+    </div>
+    <CustomButton text="Add Wallet" action={addWallet} />
+  </div>
 );
 
 const Directory = ({
@@ -416,16 +422,15 @@ const Directory = ({
   filter,
   searchTerm,
   memberCount,
+  setWalletInput,
+  walletInput,
   addWallet,
 }) => (
   <aside className="flex flex-col flex-shrink-0 w-full border-r border-gray-200">
     <div className="px-6 pt-6 pb-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          Search {numeral(memberCount).format("0,0")} members
-        </p>
-        <AddWalletButton addWallet={addWallet} />
-      </div>
+      <p className="mt-1 text-sm text-gray-600">
+        Search {numeral(memberCount).format("0,0")} members
+      </p>
       <form className="mt-6 flex space-x-4" action="#">
         <CustomSearch
           placeholder="Search wallet address"
@@ -436,36 +441,46 @@ const Directory = ({
     </div>
     {/* Directory list */}
     <nav className="flex-1 min-h-0 overflow-y-auto" aria-label="Directory">
-      {Object.keys(walletsFormatted).map((letter) => (
-        <div key={letter} className="relative">
-          <div className="z-10 sticky top-0 border-t border-b border-gray-200 dark:border-nftGray bg-gray-50 dark:bg-nftGray px-6 py-1 text-sm font-medium text-gray-500">
-            <h3>{letter}</h3>
-          </div>
-          <ul
-            role="list"
-            className="relative z-0 divide-y divide-gray-200 dark:divide-nftGray"
-          >
-            {walletsFormatted[letter].map((wallet, idx) => (
-              <li key={idx}>
-                <div className="relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-nftGray focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500">
-                  <div className="flex-1 min-w-0">
-                    <a
-                      onClick={() => null}
-                      className="focus:outline-none cursor-pointer"
-                    >
-                      {/* Extend touch target to entire panel */}
-                      <span className="absolute inset-0" aria-hidden="true" />
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {wallet.address}
-                      </p>
-                    </a>
+      {Object.keys(walletsFormatted).length ? (
+        Object.keys(walletsFormatted).map((letter) => (
+          <div key={letter} className="relative">
+            <div className="z-10 sticky top-0 border-t border-b border-gray-200 dark:border-nftGray bg-gray-50 dark:bg-nftGray px-6 py-1 text-sm font-medium text-gray-500">
+              <h3>{letter}</h3>
+            </div>
+            <ul
+              role="list"
+              className="relative z-0 divide-y divide-gray-200 dark:divide-nftGray"
+            >
+              {walletsFormatted[letter].map((wallet, idx) => (
+                <li key={idx}>
+                  <div className="relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-nftGray focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500">
+                    <div className="flex-1 min-w-0">
+                      <a
+                        onClick={() => null}
+                        className="focus:outline-none cursor-pointer"
+                      >
+                        {/* Extend touch target to entire panel */}
+                        <span className="absolute inset-0" aria-hidden="true" />
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {wallet.address}
+                        </p>
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      ) : (
+        <div className="pb-2">
+          <AddWalletComponent
+            addWallet={addWallet}
+            walletInput={walletInput}
+            setWalletInput={setWalletInput}
+          />
         </div>
-      ))}
+      )}
     </nav>
   </aside>
 );
