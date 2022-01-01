@@ -13,6 +13,7 @@ import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import _ from "lodash";
 import { useRouter } from "next/router";
 import useToast from "lib/useToast";
+import { format, compareAsc } from "date-fns";
 
 export default function Dashboard() {
   const { user, Moralis } = useMoralis();
@@ -154,7 +155,7 @@ const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
                     {project.projectName}
                   </a>
                   <p className="text-gray-500">
-                    {pluralize("Member", project.members?.length, true)}
+                    {pluralize("Member", project.members?.length || 0, true)}
                   </p>
                 </div>
                 <Menu as="div" className="flex-shrink-0 pr-2">
@@ -313,7 +314,7 @@ const ProjectTable = ({ projects, handlePin, router }) => (
                   </div>
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
-                  {project.lastUpdated}
+                  {format(new Date(project.updatedAt), "MM/d/yy")}
                 </td>
               </tr>
             )

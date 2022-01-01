@@ -108,3 +108,12 @@ export const projects = [
     bgColorClass: "bg-green-600",
   },
 ];
+
+export const wallets = [...Array(40).keys()].map(() => ({
+  // init: "A",
+  address: `${Math.floor(Math.random() * (9 - 0 + 1) + 0)}x${Math.floor(
+    Math.random() * (999999 - 100000 + 1) + 100000
+  )}5a474C9E4F42${Math.floor(
+    Math.random() * (999999 - 100000 + 1) + 100000
+  )}70f9D23b95${Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)}`,
+}));

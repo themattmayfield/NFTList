@@ -158,7 +158,7 @@ export const DarkButton = ({ text, icon, action, disabled, type }) => (
     onClick={action ? () => action() : null}
     className={`${
       disabled ? "cursor-not-allowed" : ""
-    } inline-flex justify-center items-center px-4 py-2 border-2 border-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
+    } inline-flex justify-center items-center px-4 py-2 ring-2 ring-nftGray shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-nftGray focus:outline-none`}
   >
     {icon ? (
       <span className="-ml-1 mr-2 h-5 w-5 text-white" aria-hidden="true">
