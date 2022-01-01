@@ -129,7 +129,7 @@ const Create = () => {
 
   return (
     <>
-      <Layout pageTitle={"Create"}>
+      <Layout pageTitle={id ? "Update" : "Create"}>
         <MainContentWrapper>
           <form
             className="space-y-6"
@@ -147,7 +147,7 @@ const Create = () => {
 
                 const whitelists = id ? await query.first() : new Whitelists();
 
-                await whitelists.save({
+                const response = await whitelists.save({
                   ...state,
                   user: user.id,
                 });
@@ -157,7 +157,8 @@ const Create = () => {
                     id ? "Updated successfully" : "Whilist project created"
                   }`,
                 });
-                router.push("/"); //Maybe go to the view????
+                console.log(response);
+                router.push(`/projectDetails/${response.id}`); //Maybe go to the view????
               } catch (error) {
                 useToast({ type: "error", message: error.message });
                 console.log(error.message);

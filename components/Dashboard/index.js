@@ -13,7 +13,8 @@ import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import _ from "lodash";
 import { useRouter } from "next/router";
 import useToast from "lib/useToast";
-import { format, compareAsc } from "date-fns";
+import { format } from "date-fns";
+import numeral from "numeral";
 
 export default function Dashboard() {
   const { user, Moralis } = useMoralis();
@@ -79,7 +80,7 @@ export default function Dashboard() {
           <EmptyProjects />
         ) : (
           <>
-            <RecentProjects
+            <PinnedProjects
               router={router}
               projects={projects}
               pinnedProjects={pinnedProjects}
@@ -106,7 +107,7 @@ export default function Dashboard() {
   );
 }
 
-const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
+const PinnedProjects = ({ pinnedProjects, handlePin, router }) => (
   <div className="px-4 mt-6 sm:px-6 lg:px-8">
     <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
       Pinned Projects
@@ -155,7 +156,11 @@ const RecentProjects = ({ pinnedProjects, handlePin, router }) => (
                     {project.projectName}
                   </a>
                   <p className="text-gray-500">
-                    {pluralize("Member", project.members?.length || 0, true)}
+                    {pluralize(
+                      "Member",
+                      numeral(project.members?.length || 0).format("0,0"),
+                      true
+                    )}
                   </p>
                 </div>
                 <Menu as="div" className="flex-shrink-0 pr-2">
@@ -309,7 +314,7 @@ const ProjectTable = ({ projects, handlePin, router }) => (
                 <td className="px-6 py-3 text-sm text-gray-500 font-medium">
                   <div className="flex items-center space-x-2">
                     <span className="flex-shrink-0 text-xs leading-5 font-medium">
-                      +{project.members?.length || 0}
+                      +{numeral(project.members?.length || 0).format("0,0")}
                     </span>
                   </div>
                 </td>

@@ -1,5 +1,5 @@
-import { Fragment, useState } from "react";
 import { Switch } from "@headlessui/react";
+import { SearchIcon } from "@heroicons/react/solid";
 
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(" ");
@@ -210,4 +210,24 @@ export const RedButton = ({ text, icon, action, disabled, type }) => (
 
 export const DescriptiveText = ({ text }) => (
   <p className="mt-1 text-sm text-gray-500">{text}</p>
+);
+
+export const CustomSearch = (props) => (
+  <div className="flex-1 min-w-0">
+    <label htmlFor="search" className="sr-only">
+      Search
+    </label>
+    <div className="relative rounded-md shadow-sm">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <SearchIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+      </div>
+      <input
+        {...props}
+        type="search"
+        name="search"
+        id="search"
+        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-black rounded-md"
+      />
+    </div>
+  </div>
 );
