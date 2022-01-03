@@ -20,8 +20,9 @@ import { useRouter } from "next/router";
 import getRandomColor from "lib/getRandomColor";
 import useToast from "lib/useToast";
 import { Spinner } from "components/Loading";
-import { TrashIcon } from "@heroicons/react/solid";
+import { TrashIcon, ChevronLeftIcon } from "@heroicons/react/solid";
 import _ from "lodash";
+import Link from "next/link";
 
 const Create = () => {
   const { user, Moralis } = useMoralis();
@@ -130,6 +131,30 @@ const Create = () => {
   return (
     <>
       <Layout pageTitle={id ? "Update" : "Create"}>
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="bg-white dark:bg-black md:border-b dark:border-nftGray"
+        >
+          <div className="max-w-5xl mx-auto py-3 px-4 flex items-start sm:px-6 lg:px-8">
+            <Link href={id ? `projectDetails/${id}` : "/"}>
+              <a
+                href="#"
+                className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium hover:text-indigo-500 transition duration-300 ease-in-out"
+              >
+                <ChevronLeftIcon
+                  className="h-5 w-5 text-blue-gray-100"
+                  aria-hidden="true"
+                />
+                {id ? (
+                  <span>Back to Whitelist View</span>
+                ) : (
+                  <span>Dashboard</span>
+                )}
+              </a>
+            </Link>
+          </div>
+        </nav>
         <MainContentWrapper>
           <form
             className="space-y-6"
@@ -475,8 +500,7 @@ const Create = () => {
               </>
             ) : null}
 
-            <div className="flex justify-end px-4 space-x-3">
-              <DarkButton text="Cancel" action={() => router.push("/")} />
+            <div className="flex justify-end px-4">
               <LightButton disabled={disableForm} text="Save" type="submit" />
             </div>
           </form>
