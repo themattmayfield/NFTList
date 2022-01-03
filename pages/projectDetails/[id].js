@@ -96,11 +96,46 @@ const ProjectDetails = () => {
     setSearchTerm(keyword);
   };
 
-  const addWallet = () => {
-    alert(walletInput);
+  const addWallet = async () => {
+    if (!walletInput.length) return true;
+
+    try {
+      const Whitelists = Moralis.Object.extend("Whitelists");
+
+      const query = new Moralis.Query(Whitelists);
+
+      query.equalTo("user", user.id);
+      query.equalTo("objectId", id);
+
+      const whitelists = await query.first();
+
+      const data = { address: walletInput };
+      whitelists.addUnique("members", data);
+      whitelists.save();
+      setWalletInput("");
+
+      // Soooooo if address exists in members array, return previous state, else add to array
+      setProject((prevState) =>
+        prevState.members.filter((member) => member.address === walletInput)
+          .length
+          ? { ...prevState }
+          : {
+              ...prevState,
+              members: [...prevState.members, data],
+            }
+      );
+
+      useToast({
+        type: "success",
+        message: "Wallet added successfully!",
+      });
+    } catch (error) {
+      useToast({ type: "error", message: error.message });
+      console.log(error.message);
+    }
   };
 
-  const profile = {
+  const displayData = {
     about: project?.about || "N/A",
     fields: {
       "Project Name": project?.projectName,
@@ -108,6 +143,8 @@ const ProjectDetails = () => {
       "Whitelist Limit":
         numeral(project?.whitelistLimit || 0).format("0,0") || "N/A",
       Public: JSON.stringify(project?.isPublic) || "N/A",
+    },
+    privateFields: {
       "Display Name": project?.displayName || "N/A",
       "Redirect Url": project?.redirect || "N/A",
 
@@ -174,7 +211,7 @@ const ProjectDetails = () => {
             <div className="flex-1 relative z-0 flex overflow-hidden">
               <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
                 <article className="pb-12">
-                  {/* Profile header */}
+                  {/* header */}
                   {(project?.headerPhoto?._url && project?.default?._url && (
                     <HeaderDefault router={router} project={project} />
                   )) ||
@@ -221,58 +258,76 @@ const ProjectDetails = () => {
                     <Tab.Panel>
                       <div className="mt-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                         <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                          {Object.keys(profile.fields).map((field) => (
-                            <div key={field} className="sm:col-span-1">
+                          {Object.keys({
+                            ...displayData.fields,
+                            ...(project?.isPublic
+                              ? displayData.privateFields
+                              : null),
+                          }).map((field) => {
+                            return (
+                              <div key={field} className="sm:col-span-1">
+                                <dt className="text-sm font-medium text-gray-500 dark:text-white">
+                                  {field}
+                                </dt>
+                                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-500">
+                                  {
+                                    {
+                                      ...displayData.fields,
+                                      ...(project?.isPublic
+                                        ? displayData.privateFields
+                                        : null),
+                                    }[field]
+                                  }
+                                </dd>
+                              </div>
+                            );
+                          })}
+                          {project.isPublic ? (
+                            <div className="sm:col-span-2">
                               <dt className="text-sm font-medium text-gray-500 dark:text-white">
-                                {field}
+                                About
                               </dt>
-                              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-500">
-                                {profile.fields[field]}
-                              </dd>
+                              <dd
+                                className="mt-1 max-w-prose text-sm text-gray-900 dark:text-gray-500 space-y-5"
+                                dangerouslySetInnerHTML={{
+                                  __html: displayData.about,
+                                }}
+                              />
                             </div>
-                          ))}
-                          <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500 dark:text-white">
-                              About
-                            </dt>
-                            <dd
-                              className="mt-1 max-w-prose text-sm text-gray-900 dark:text-gray-500 space-y-5"
-                              dangerouslySetInnerHTML={{
-                                __html: profile.about,
-                              }}
-                            />
-                          </div>
+                          ) : null}
                         </dl>
-                      </div>
 
-                      {/* Delete Project Button */}
-                      <div className="pt-6 px-4 sm:px-6 lg:px-8 text-right border-t border-gray-200 dark:border-nftGray mt-6">
-                        <RedButton
-                          action={() => setShowDeleteProjectModal(true)}
-                          text="Permenantly Delete Project"
-                        />
+                        {/* Delete Project Button */}
+                        <div className="pt-6 px-4 sm:px-6 lg:px-8 text-right border-t border-gray-200 dark:border-nftGray mt-6">
+                          <RedButton
+                            action={() => setShowDeleteProjectModal(true)}
+                            text="Permenantly Delete Project"
+                          />
+                        </div>
                       </div>
                     </Tab.Panel>
 
                     {/* Members */}
                     <Tab.Panel>
-                      {project?.members?.length ? (
-                        <Directory
-                          walletsFormatted={walletsFormatted}
-                          filter={filter}
-                          searchTerm={searchTerm}
-                          memberCount={project.members.length}
-                          addWallet={addWallet}
-                          walletInput={walletInput}
-                          setWalletInput={setWalletInput}
-                        />
-                      ) : (
-                        <AddWalletComponent
-                          addWallet={addWallet}
-                          walletInput={walletInput}
-                          setWalletInput={setWalletInput}
-                        />
-                      )}
+                      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {project?.members?.length ? (
+                          <Directory
+                            walletsFormatted={walletsFormatted}
+                            filter={filter}
+                            searchTerm={searchTerm}
+                            memberCount={project.members.length}
+                            addWallet={addWallet}
+                            walletInput={walletInput}
+                            setWalletInput={setWalletInput}
+                          />
+                        ) : (
+                          <AddWalletComponent
+                            addWallet={addWallet}
+                            walletInput={walletInput}
+                            setWalletInput={setWalletInput}
+                          />
+                        )}
+                      </div>
                     </Tab.Panel>
                   </Tab.Group>
                 </article>
@@ -413,7 +468,11 @@ const AddWalletComponent = ({ addWallet, walletInput, setWalletInput }) => (
         onChange={(e) => setWalletInput(e.target.value)}
       />
     </div>
-    <CustomButton text="Add Wallet" action={addWallet} />
+    <CustomButton
+      disabled={!walletInput.length}
+      text="Add Wallet"
+      action={addWallet}
+    />
   </div>
 );
 
@@ -426,8 +485,8 @@ const Directory = ({
   walletInput,
   addWallet,
 }) => (
-  <aside className="flex flex-col flex-shrink-0 w-full border-r border-gray-200">
-    <div className="px-6 pt-6 pb-4">
+  <aside className="flex flex-col flex-shrink-0 w-full ">
+    <div className="pt-6 pb-4">
       <p className="mt-1 text-sm text-gray-600">
         Search {numeral(memberCount).format("0,0")} members
       </p>
@@ -440,9 +499,13 @@ const Directory = ({
       </form>
     </div>
     {/* Directory list */}
-    <nav className="flex-1 min-h-0 overflow-y-auto" aria-label="Directory">
-      {Object.keys(walletsFormatted).length ? (
-        Object.keys(walletsFormatted).map((letter) => (
+
+    {Object.keys(walletsFormatted).length ? (
+      Object.keys(walletsFormatted).map((letter) => (
+        <nav
+          className="flex-1 min-h-0 overflow-y-auto border-x border-b border-gray-200 dark:border-nftGray"
+          aria-label="Directory"
+        >
           <div key={letter} className="relative">
             <div className="z-10 sticky top-0 border-t border-b border-gray-200 dark:border-nftGray bg-gray-50 dark:bg-nftGray px-6 py-1 text-sm font-medium text-gray-500">
               <h3>{letter}</h3>
@@ -471,16 +534,16 @@ const Directory = ({
               ))}
             </ul>
           </div>
-        ))
-      ) : (
-        <div className="pb-2">
-          <AddWalletComponent
-            addWallet={addWallet}
-            walletInput={walletInput}
-            setWalletInput={setWalletInput}
-          />
-        </div>
-      )}
-    </nav>
+        </nav>
+      ))
+    ) : (
+      <div className="pb-2">
+        <AddWalletComponent
+          addWallet={addWallet}
+          walletInput={walletInput}
+          setWalletInput={setWalletInput}
+        />
+      </div>
+    )}
   </aside>
 );
