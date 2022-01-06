@@ -375,7 +375,13 @@ const HeaderDefault = ({ project, router }) => (
               action={() => router.push(`/create?id=${project.id}`)}
             />
 
-            <DarkButton text="Preview Website" icon={<EyeIcon />} />
+            {project?.isPublic ? (
+              <DarkButton
+                action={() => router.push(`/preview/${project.id}`)}
+                text="Preview Website"
+                icon={<EyeIcon />}
+              />
+            ) : null}
           </div>
         </div>
       </div>
@@ -413,7 +419,13 @@ const HeaderOnly = ({ project, router }) => (
             icon={<PencilIcon />}
             action={() => router.push(`/create?id=${project.id}`)}
           />
-          <DarkButton text="Preview Website" icon={<EyeIcon />} />
+          {project?.isPublic ? (
+            <DarkButton
+              action={() => router.push(`/preview/${project.id}`)}
+              text="Preview Website"
+              icon={<EyeIcon />}
+            />
+          ) : null}
         </div>
       </div>
     </div>
@@ -443,7 +455,13 @@ const DefaultOnly = ({ project, router }) => (
             icon={<PencilIcon />}
             action={() => router.push(`/create?id=${project.id}`)}
           />
-          <DarkButton text="Preview Website" icon={<EyeIcon />} />
+          {project?.isPublic ? (
+            <DarkButton
+              action={() => router.push(`/preview/${project.id}`)}
+              text="Preview Website"
+              icon={<EyeIcon />}
+            />
+          ) : null}
         </div>
       </div>
     </div>
