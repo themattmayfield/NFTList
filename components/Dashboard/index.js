@@ -221,7 +221,7 @@ const ProjectList = ({ projects, handlePin, router }) => (
       role="list"
       className="mt-3 border-t border-gray-200 dark:border-nftGray divide-y divide-gray-100 dark:divide-nftGray"
     >
-      {_.orderBy(projects, ["pinned", "updatedAt"], ["desc", "desc"]).map(
+      {_.orderBy(projects, ["pinned", "updatedAt"], ["asc", "desc"]).map(
         (project) => (
           <li
             onClick={() => router.push(`projectDetails/${project.id}`)}
@@ -280,7 +280,7 @@ const ProjectTable = ({ projects, handlePin, router }) => (
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-black divide-y divide-gray-100 dark:divide-nftGray">
-          {_.orderBy(projects, ["pinned", "updatedAt"], ["desc", "desc"]).map(
+          {_.orderBy(projects, ["pinned", "updatedAt"], ["asc", "desc"]).map(
             (project) => (
               <tr
                 onClick={() => router.push(`projectDetails/${project.id}`)}

@@ -1,8 +1,9 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useRef } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
-import { CustomButton, RedButton, DarkButton } from "components/PageUtils";
+import { CgSpinner } from "react-icons/cg";
+
 export default function DeleteModal({
   open,
   setOpen,
@@ -14,6 +15,7 @@ export default function DeleteModal({
 }) {
   const cancelButtonRef = useRef(null);
 
+  const [loading, setLoading] = useState(false);
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -75,10 +77,19 @@ export default function DeleteModal({
               </div>
               <div className="bg-gray-50 dark:bg-nftGray px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
+                  disabled={loading}
                   type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => action()}
+                  className={`${
+                    loading ? "cursor-not-allowed" : ""
+                  } w-full inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm`}
+                  onClick={() => {
+                    setLoading(true);
+                    action();
+                  }}
                 >
+                  {loading ? (
+                    <CgSpinner className="animate-spin h-5 w-5 mr-3" />
+                  ) : null}
                   {actionText}
                 </button>
                 <button

@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
+import { Field } from "formik";
 
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(" ");
@@ -24,10 +25,38 @@ export const CustomInput = (props) => {
       >
         {props.label}
       </label>
-      <input
+      <Field
         {...props}
-        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-black rounded-md "
+        className={`${props.className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-black rounded-md `}
       />
+      <p className="text-xs text-red-600">{props.error}</p>
+    </>
+  );
+};
+
+export const CustomAddress = (props) => {
+  return (
+    <>
+      <label
+        htmlFor={props.htmlFor}
+        className="block text-sm font-medium text-gray-700 dark:text-white"
+      >
+        {props.label}
+      </label>
+      <div className="mt-1 relative rounded-md shadow-sm">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          {props.prefix}
+          {/* <MailIcon className="h-5 w-5 text-gray-400" aria-hidden="true" /> */}
+        </div>
+        <Field
+          {...props}
+          className={`${props.className} focus:ring-indigo-500 focus:border-indigo-500 block pl-10 w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-black rounded-md`}
+        />
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          {props.suffix}
+        </div>
+      </div>
+      <p className="text-xs text-red-600">{props.error}</p>
     </>
   );
 };
@@ -86,10 +115,12 @@ export const CustomTextArea = (props) => {
         {props.label}
       </label>
       <div className="mt-1">
-        <textarea
+        <Field
+          as="textarea"
           {...props}
           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 dark:border-gray-700 dark:bg-black rounded-md"
         />
+        <p className="text-xs text-red-600">{props.error}</p>
       </div>
     </>
   );

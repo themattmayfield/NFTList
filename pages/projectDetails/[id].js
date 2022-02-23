@@ -18,6 +18,8 @@ import NoProject from "components/ProjectDetails/NoProject";
 import useToast from "lib/useToast";
 import DeleteModal from "components/DeleteModal";
 import { Tab } from "@headlessui/react";
+import { Formik, Form } from "formik";
+import AddressInput from "lib/addressInput";
 // import { wallets } from "components/DUMMY_DATA";
 
 const tabs = [
@@ -150,9 +152,28 @@ const ProjectDetails = () => {
 
       "Project Background Color": (
         <div
-          style={{ backgroundColor: project?.backgroundColor }}
-          className="w-6 h-6 flex items-center justify-center"
-        />
+          style={{
+            backgroundColor:
+              project?.backgroundColor === "#000000" ||
+              project?.backgroundColor === "#ffffff"
+                ? null
+                : project?.backgroundColor,
+          }}
+          className={`${
+            project?.backgroundColor === "#000000" ||
+            project?.backgroundColor === "#ffffff"
+              ? null
+              : "w-6 h-6 flex items-center justify-center"
+          }  `}
+        >
+          {!project.backgroundColor
+            ? "N/A"
+            : project?.backgroundColor === "#000000"
+            ? "black"
+            : null || project?.backgroundColor === "#ffffff"
+            ? "white"
+            : null}
+        </div>
       ),
       "Project Text Color": (
         <div
@@ -163,10 +184,45 @@ const ProjectDetails = () => {
                 ? null
                 : project?.textColor,
           }}
-          className="w-6 h-6 flex items-center justify-center"
+          className={`${
+            project?.backgroundColor === "#000000" ||
+            project?.backgroundColor === "#ffffff"
+              ? null
+              : "w-6 h-6 flex items-center justify-center"
+          }  `}
         >
-          {project?.textColor === "#000000" ? "black" : null}
-          {project?.textColor === "#ffffff" ? "white" : null}
+          {!project.textColor
+            ? "N/A"
+            : project?.textColor === "#000000"
+            ? "black"
+            : null || project?.textColor === "#ffffff"
+            ? "white"
+            : null}
+        </div>
+      ),
+      "Project Button Color": (
+        <div
+          style={{
+            backgroundColor:
+              project?.buttonColor === "#000000" ||
+              project?.buttonColor === "#ffffff"
+                ? null
+                : project?.buttonColor,
+          }}
+          className={`${
+            project?.backgroundColor === "#000000" ||
+            project?.backgroundColor === "#ffffff"
+              ? null
+              : "w-6 h-6 flex items-center justify-center"
+          }  `}
+        >
+          {!project.buttonColor
+            ? "N/A"
+            : project?.buttonColor === "#000000"
+            ? "black"
+            : null || project?.buttonColor === "#ffffff"
+            ? "white"
+            : null}
         </div>
       ),
       "Receive Notifications For Signups": JSON.stringify(
@@ -212,15 +268,7 @@ const ProjectDetails = () => {
               <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
                 <article className="pb-12">
                   {/* header */}
-                  {(project?.headerPhoto?._url && project?.default?._url && (
-                    <HeaderDefault router={router} project={project} />
-                  )) ||
-                    (project?.headerPhoto?._url && !project?.default?._url && (
-                      <HeaderOnly router={router} project={project} />
-                    )) ||
-                    (!project?.headerPhoto?._url && project?.default?._url && (
-                      <DefaultOnly router={router} project={project} />
-                    )) || <HeaderOnly router={router} project={project} />}
+                  <DisplayImage router={router} project={project} />
                   <Tab.Group>
                     {/* Tabs */}
                     <div className="mt-6 sm:mt-2 2xl:mt-5">
@@ -342,65 +390,13 @@ const ProjectDetails = () => {
 
 export default ProjectDetails;
 
-const HeaderDefault = ({ project, router }) => (
+const DisplayImage = ({ project, router }) => (
   <div>
-    <div>
-      <img
-        className="h-32 w-full object-cover lg:h-48"
-        src={project?.headerPhoto?._url}
-        alt=""
-      />
-    </div>
-
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className={`-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5`}>
-        <div className="flex">
-          <img
-            className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32 object-cover"
-            src={project?.default?._url}
-            alt=""
-          />
-        </div>
-
-        <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
-          <div className="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-              {project.projectName}
-            </h1>
-          </div>
-          <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-            <CustomButton
-              text="Edit"
-              icon={<PencilIcon />}
-              action={() => router.push(`/create?id=${project.id}`)}
-            />
-
-            {project?.isPublic ? (
-              <DarkButton
-                action={() => router.push(`/preview/${project.id}`)}
-                text="Preview Website"
-                icon={<EyeIcon />}
-              />
-            ) : null}
-          </div>
-        </div>
-      </div>
-      <div className="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-          {project.projectName}
-        </h1>
-      </div>
-    </div>
-  </div>
-);
-
-const HeaderOnly = ({ project, router }) => (
-  <div>
-    {project?.headerPhoto?._url ? (
+    {project?.displayPhoto?._url ? (
       <div>
         <img
           className="h-32 w-full object-cover lg:h-48"
-          src={project?.headerPhoto?._url}
+          src={project?.displayPhoto?._url}
           alt=""
         />
       </div>
@@ -432,67 +428,33 @@ const HeaderOnly = ({ project, router }) => (
   </div>
 );
 
-const DefaultOnly = ({ project, router }) => (
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className={`pt-4 sm:flex items-center sm:space-x-5`}>
-      <div className="flex">
-        <img
-          className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32 object-cover"
-          src={project?.default?._url}
-          alt=""
-        />
-      </div>
+const AddWalletComponent = ({ addWallet, walletInput, setWalletInput }) => {
+  const [receiver, setReceiver] = useState();
 
-      <div className="sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 ">
-        <div className="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-            {project.projectName}
-          </h1>
-        </div>
-        <div className="mt-6 sm:mt-0 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-          <CustomButton
-            text="Edit"
-            icon={<PencilIcon />}
-            action={() => router.push(`/create?id=${project.id}`)}
+  return (
+    <Formik>
+      <Form className="max-w-xl space-y-2 mt-6 sm:flex sm:space-y-0 sm:space-x-2 items-end w-full">
+        <div className="flex-1">
+          <AddressInput onChange={setReceiver} />
+          <CustomInput
+            htmlFor="addWallet"
+            label="Add Wallet"
+            type="text"
+            name="addWallet"
+            id="addWallet"
+            value={walletInput}
+            onChange={(e) => setWalletInput(e.target.value)}
           />
-          {project?.isPublic ? (
-            <DarkButton
-              action={() => router.push(`/preview/${project.id}`)}
-              text="Preview Website"
-              icon={<EyeIcon />}
-            />
-          ) : null}
         </div>
-      </div>
-    </div>
-    <div className="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-        {project.projectName}
-      </h1>
-    </div>
-  </div>
-);
-
-const AddWalletComponent = ({ addWallet, walletInput, setWalletInput }) => (
-  <div className="max-w-xl space-y-2 mt-6 px-4 sm:px-6 lg:px-8 sm:flex sm:space-y-0 sm:space-x-2 items-end w-full">
-    <div className="flex-1">
-      <CustomInput
-        htmlFor="addWallet"
-        label="Add Wallet"
-        type="text"
-        name="addWallet"
-        id="addWallet"
-        value={walletInput}
-        onChange={(e) => setWalletInput(e.target.value)}
-      />
-    </div>
-    <CustomButton
-      disabled={!walletInput.length}
-      text="Add Wallet"
-      action={addWallet}
-    />
-  </div>
-);
+        <CustomButton
+          disabled={!walletInput.length}
+          text="Add Wallet"
+          action={addWallet}
+        />
+      </Form>
+    </Formik>
+  );
+};
 
 const Directory = ({
   walletsFormatted,
